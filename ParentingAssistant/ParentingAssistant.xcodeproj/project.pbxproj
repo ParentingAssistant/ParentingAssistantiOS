@@ -37,22 +37,9 @@
 		FAFAD8952D7B707E0042C3B4 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		FAFAD8922D7B70130042C3B4 /* Exceptions for "ParentingAssistant" folder in "ParentingAssistant" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				"Resources/GoogleService-Info.plist",
-			);
-			target = FA0D6E3C2D7A24AF00AF0365 /* ParentingAssistant */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		FA0D6E3F2D7A24AF00AF0365 /* ParentingAssistant */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				FAFAD8922D7B70130042C3B4 /* Exceptions for "ParentingAssistant" folder in "ParentingAssistant" target */,
-			);
 			path = ParentingAssistant;
 			sourceTree = "<group>";
 		};
