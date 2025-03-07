@@ -73,9 +73,7 @@ struct LoginView: View {
                 title: "Login",
                 isLoading: authService.isLoading
             ) {
-                Task {
-                    await validateAndLogin()
-                }
+                await validateAndLogin()
             }
             .padding(.horizontal, 24)
             .padding(.top, 20)
@@ -139,7 +137,7 @@ struct LoginView: View {
             SignUpView()
         }
         .navigationDestination(isPresented: $showForgotPassword) {
-            ForgotPasswordView()
+            Text("Forgot Password") // TODO: Create ForgotPasswordView
         }
         .task {
             canUseBiometrics = await authService.canUseBiometrics()
@@ -199,9 +197,8 @@ struct LoginView: View {
     }
 }
 
-// Preview provider
 #Preview {
     NavigationStack {
         LoginView()
     }
-} 
+}

@@ -2,49 +2,79 @@ import SwiftUI
 
 struct PasswordStrengthView: View {
     let password: String
-    @StateObject private var authService = AuthenticationService.shared
     
-    private var strength: AuthenticationService.PasswordStrength {
-        authService.checkPasswordStrength(password)
-    }
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            // Strength bars
-            HStack(spacing: 4) {
-                ForEach(0..<3) { index in
-                    Rectangle()
-                        .fill(getBarColor(for: index))
-                        .frame(height: 4)
-                }
-            }
-            
-            // Strength description
-            Text(strength.description)
-                .font(.caption)
-                .foregroundColor(strength.color)
+    private var strength: PasswordStrength {
+        if password.isEmpty {
+            return .empty
+        } else if password.count < 8 {
+            return .weak
+        } else if password.count < 12 {
+            return .medium
+        } else {
+            return .strong
         }
     }
     
-    private func getBarColor(for index: Int) -> Color {
-        switch (strength, index) {
-        case (.weak, 0):
-            return .red
-        case (.medium, 0), (.medium, 1):
-            return .orange
-        case (.strong, _):
-            return .green
-        default:
-            return .gray.opacity(0.3)
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Password Strength: \(strength.title)")
+                .font(.caption)
+                .foregroundColor(strength.color)
+            
+            GeometryReader { geometry in
+                HStack(spacing: 2) {
+                    ForEach(0..<3) { index in
+                        RoundedRectangle(cornerRadius: 2)
+                            .fill(index < strength.bars ? strength.color : Color.gray.opacity(0.3))
+                            .frame(width: (geometry.size.width - 4) / 3)
+                    }
+                }
+            }
+            .frame(height: 4)
+        }
+    }
+}
+
+private enum PasswordStrength {
+    case empty
+    case weak
+    case medium
+    case strong
+    
+    var title: String {
+        switch self {
+        case .empty: return "Empty"
+        case .weak: return "Weak"
+        case .medium: return "Medium"
+        case .strong: return "Strong"
+        }
+    }
+    
+    var color: Color {
+        switch self {
+        case .empty: return .gray
+        case .weak: return .red
+        case .medium: return .orange
+        case .strong: return .green
+        }
+    }
+    
+    var bars: Int {
+        switch self {
+        case .empty: return 0
+        case .weak: return 1
+        case .medium: return 2
+        case .strong: return 3
         }
     }
 }
 
 #Preview {
     VStack(spacing: 20) {
-        PasswordStrengthView(password: "weak")
-        PasswordStrengthView(password: "Medium123")
-        PasswordStrengthView(password: "StrongP@ssw0rd!")
+        PasswordStrengthView(password: "")
+        PasswordStrengthView(password: "123")
+        PasswordStrengthView(password: "12345678")
+        PasswordStrengthView(password: "123456789012")
     }
     .padding()
 } 

@@ -1,126 +1,190 @@
 import SwiftUI
 import LocalAuthentication
+import FirebaseAuth
+import FirebaseFirestore
 
+@MainActor
 class AuthenticationService: ObservableObject {
+    static let shared = AuthenticationService()
+
     @Published var isAuthenticated = false
     @Published var isLoading = false
     @Published var currentUser: User?
-    
-    static let shared = AuthenticationService()
-    
-    private init() {}
-    
-    struct User {
-        let id: String
-        let email: String
-        let fullName: String
+
+    private let authManager = FirebaseAuthManager.shared
+    private var authStateHandler: AuthStateDidChangeListenerHandle?
+
+    private init() {
+        setupAuthStateListener()
     }
     
+    deinit {
+        if let handler = authStateHandler {
+            Auth.auth().removeStateDidChangeListener(handler)
+        }
+    }
+
+    private func setupAuthStateListener() {
+        authStateHandler = Auth.auth().addStateDidChangeListener { [weak self] _, user in
+            Task {
+                print("Auth state changed - User: \(user?.uid ?? "nil")")
+                if let userId = user?.uid {
+                    print("User is authenticated with ID: \(userId)")
+                    await self?.fetchUserData(userId: userId)
+                    self?.isAuthenticated = true
+                    print("isAuthenticated set to true")
+                } else {
+                    print("No user found, setting isAuthenticated to false")
+                    self?.currentUser = nil
+                    self?.isAuthenticated = false
+                }
+            }
+        }
+    }
+
     func login(email: String, password: String) async throws {
         isLoading = true
         defer { isLoading = false }
-        
-        // Simulate network delay
-        try await Task.sleep(nanoseconds: 1_000_000_000)
-        
-        // TODO: Implement actual login API call
-        // For now, simulate successful login
-        currentUser = User(id: UUID().uuidString, email: email, fullName: "Test User")
-        isAuthenticated = true
+
+        do {
+            let result = try await authManager.signIn(withEmail: email, password: password)
+            // No need to manually fetch user data or set isAuthenticated
+            // The auth state listener will handle it
+        } catch {
+            throw error
+        }
     }
-    
+
     func signUp(fullName: String, email: String, password: String) async throws {
         isLoading = true
         defer { isLoading = false }
-        
-        // Simulate network delay
-        try await Task.sleep(nanoseconds: 1_000_000_000)
-        
-        // TODO: Implement actual signup API call
-        // For now, simulate successful signup
-        currentUser = User(id: UUID().uuidString, email: email, fullName: fullName)
-        isAuthenticated = true
+
+        do {
+            let result = try await authManager.createUser(withEmail: email, password: password)
+
+            let userData: [String: Any] = [
+                "fullName": fullName,
+                "email": email,
+                "createdAt": Date(),
+                "lastLoginAt": Date(),
+                "dietaryRestrictions": [],
+                "cuisineTypes": [],
+                "cookingDifficulty": CookingDifficulty.easy.rawValue,
+                "servingSize": 4,
+                "weeklyPlanEnabled": false,
+                "notificationsEnabled": true
+            ]
+
+            try await authManager.createUserDocument(userId: result.user.uid, userData: userData)
+            // No need to manually fetch user data or set isAuthenticated
+            // The auth state listener will handle it
+        } catch {
+            throw error
+        }
     }
-    
+
     func resetPassword(email: String) async throws {
         isLoading = true
         defer { isLoading = false }
-        
-        // Simulate network delay
-        try await Task.sleep(nanoseconds: 1_000_000_000)
-        
-        // TODO: Implement actual password reset API call
+
+        try await authManager.resetPassword(forEmail: email)
     }
-    
-    func signOut() {
-        isAuthenticated = false
-        currentUser = nil
+
+    func signOut() throws {
+        try authManager.signOut()
+        // No need to manually set currentUser or isAuthenticated
+        // The auth state listener will handle it
     }
-    
+
     // MARK: - Biometric Authentication
-    
+
     func canUseBiometrics() async -> Bool {
         let context = LAContext()
         var error: NSError?
         return context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
     }
-    
+
     func authenticateWithBiometrics() async throws -> Bool {
         let context = LAContext()
         let reason = "Log in to your account"
+
+        return try await withCheckedThrowingContinuation { continuation in
+            context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { success, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume(returning: success)
+                }
+            }
+        }
+    }
+
+    private func fetchUserData(userId: String) async {
+        do {
+            print("Fetching user data for ID: \(userId)")
+            guard let data = try await authManager.fetchUserDocument(userId: userId) else {
+                print("No user data found in Firestore, attempting to recreate document")
+                await recreateUserDocument(userId: userId)
+                return
+            }
+            
+            print("Successfully fetched user data: \(data)")
+            
+            // Create UserPreferences
+            let mealPreferences = User.MealPreferences(
+                cuisineTypes: data["cuisineTypes"] as? [String] ?? [],
+                difficultyLevel: CookingDifficulty(rawValue: data["cookingDifficulty"] as? String ?? "") ?? .easy,
+                servingSize: data["servingSize"] as? Int ?? 4,
+                weeklyPlanEnabled: data["weeklyPlanEnabled"] as? Bool ?? false
+            )
+            
+            let preferences = User.UserPreferences(
+                dietaryRestrictions: data["dietaryRestrictions"] as? [String] ?? [],
+                mealPreferences: mealPreferences,
+                notificationsEnabled: data["notificationsEnabled"] as? Bool ?? true,
+                reminderTime: (data["reminderTime"] as? Timestamp)?.dateValue()
+            )
+            
+            self.currentUser = User(
+                id: userId,
+                email: data["email"] as? String ?? "",
+                fullName: data["fullName"] as? String ?? "",
+                children: nil, // We'll handle children separately
+                preferences: preferences,
+                createdAt: (data["createdAt"] as? Timestamp)?.dateValue() ?? Date(),
+                lastLoginAt: (data["lastLoginAt"] as? Timestamp)?.dateValue() ?? Date()
+            )
+            print("Updated currentUser with fetched data")
+        } catch {
+            print("Error fetching user data: \(error)")
+        }
+    }
+
+    private func recreateUserDocument(userId: String) async {
+        guard let user = Auth.auth().currentUser else { return }
+        
+        let userData: [String: Any] = [
+            "fullName": user.displayName ?? "",
+            "email": user.email ?? "",
+            "createdAt": Timestamp(date: Date()),
+            "lastLoginAt": Timestamp(date: Date()),
+            "dietaryRestrictions": [],
+            "cuisineTypes": [],
+            "cookingDifficulty": CookingDifficulty.easy.rawValue,
+            "servingSize": 4,
+            "weeklyPlanEnabled": false,
+            "notificationsEnabled": true
+        ]
         
         do {
-            return try await context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason)
+            try await authManager.createUserDocument(userId: userId, userData: userData)
+            await fetchUserData(userId: userId)
         } catch {
-            throw error
+            print("Error recreating user document: \(error)")
         }
     }
-    
-    // MARK: - Password Strength
-    
-    enum PasswordStrength {
-        case weak
-        case medium
-        case strong
-        
-        var color: Color {
-            switch self {
-            case .weak: return .red
-            case .medium: return .orange
-            case .strong: return .green
-            }
-        }
-        
-        var description: String {
-            switch self {
-            case .weak: return "Weak"
-            case .medium: return "Medium"
-            case .strong: return "Strong"
-            }
-        }
-    }
-    
-    func checkPasswordStrength(_ password: String) -> PasswordStrength {
-        var score = 0
-        
-        // Length check
-        if password.count >= 8 { score += 1 }
-        if password.count >= 12 { score += 1 }
-        
-        // Character variety checks
-        let hasUppercase = password.range(of: "[A-Z]", options: .regularExpression) != nil
-        let hasLowercase = password.range(of: "[a-z]", options: .regularExpression) != nil
-        let hasNumbers = password.range(of: "[0-9]", options: .regularExpression) != nil
-        let hasSpecialChars = password.range(of: "[^A-Za-z0-9]", options: .regularExpression) != nil
-        
-        if hasUppercase && hasLowercase { score += 1 }
-        if hasNumbers { score += 1 }
-        if hasSpecialChars { score += 1 }
-        
-        switch score {
-        case 0...2: return .weak
-        case 3...4: return .medium
-        default: return .strong
-        }
-    }
-} 
+}
+
+extension Notification.Name {
+    static let AuthStateDidChange = Notification.Name("AuthStateDidChange")
+}
