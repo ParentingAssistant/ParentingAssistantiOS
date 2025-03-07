@@ -111,7 +111,7 @@ struct OnboardingView: View {
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
             .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
             .navigationDestination(isPresented: $shouldShowLogin) {
-                //LoginView()
+                LoginView()
             }
         }
         .animation(.easeInOut, value: currentPage)
