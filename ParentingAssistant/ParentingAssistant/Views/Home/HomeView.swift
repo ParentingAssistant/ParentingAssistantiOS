@@ -6,7 +6,7 @@ struct HomeView: View {
     
     var body: some View {
         TabView(selection: $selectedTab) {
-            // Main Grid View
+            // Home Tab
             NavigationStack {
                 ScrollView {
                     VStack(spacing: 24) {
@@ -25,10 +25,13 @@ struct HomeView: View {
                         .padding(.horizontal)
                         
                         // Features Grid
-                        LazyVGrid(columns: [
-                            GridItem(.flexible(), spacing: 16),
-                            GridItem(.flexible(), spacing: 16)
-                        ], spacing: 16) {
+                        LazyVGrid(
+                            columns: [
+                                GridItem(.flexible(), spacing: 16),
+                                GridItem(.flexible(), spacing: 16)
+                            ],
+                            spacing: 16
+                        ) {
                             NavigationLink(destination: MealPlanningView()) {
                                 FeatureCard(
                                     icon: "fork.knife",
@@ -72,21 +75,21 @@ struct HomeView: View {
             }
             .tag(0)
             
-            // Meal Planning Tab
+            // Search Tab
             NavigationStack {
-                MealPlanningView()
+                SearchView()
             }
             .tabItem {
-                Label("Meals", systemImage: "fork.knife")
+                Label("Search", systemImage: "magnifyingglass")
             }
             .tag(1)
             
-            // Stories Tab
+            // Marketplace Tab
             NavigationStack {
-                BedtimeStoryView()
+                MarketplaceView()
             }
             .tabItem {
-                Label("Stories", systemImage: "book.fill")
+                Label("Shop", systemImage: "cart.fill")
             }
             .tag(2)
             
@@ -132,6 +135,8 @@ struct FeatureCard: View {
     }
 }
 
-#Preview {
-    HomeView()
+struct HomeView_Previews: PreviewProvider {
+    static var previews: some View {
+        HomeView()
+    }
 } 
