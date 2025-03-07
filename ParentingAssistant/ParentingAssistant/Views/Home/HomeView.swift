@@ -56,11 +56,11 @@ struct HomeView: View {
                                 )
                             }
                             
-                            NavigationLink(destination: Text("Kids' Routines")) {
+                            NavigationLink(destination: KidsActivitiesView()) {
                                 FeatureCard(
-                                    icon: "clock.fill",
-                                    title: "Kids' Routines",
-                                    subtitle: "Track daily schedules"
+                                    icon: "figure.2.and.child.holdinghands",
+                                    title: "Kids' Activities",
+                                    subtitle: "Fun & educational activities"
                                 )
                             }
                             
