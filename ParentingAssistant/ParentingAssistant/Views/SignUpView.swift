@@ -101,9 +101,7 @@ struct SignUpView: View {
                 title: "Create Account",
                 isLoading: authService.isLoading
             ) {
-                Task {
-                    await validateAndSignUp()
-                }
+                validateAndSignUp()
             }
             .padding(.horizontal, 24)
             .padding(.top, 20)
@@ -132,7 +130,7 @@ struct SignUpView: View {
         }
     }
     
-    private func validateAndSignUp() async {
+    private func validateAndSignUp() {
         // Reset error state
         showError = false
         errorMessage = ""
@@ -165,13 +163,7 @@ struct SignUpView: View {
             return
         }
         
-        do {
-            try await authService.signUp(fullName: fullName, email: email, password: password)
-            // Handle successful signup
-        } catch {
-            showError = true
-            errorMessage = error.localizedDescription
-        }
+        authService.signUp(fullName: fullName, email: email, password: password)
     }
     
     private func isValidEmail(_ email: String) -> Bool {

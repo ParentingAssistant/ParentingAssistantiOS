@@ -73,7 +73,7 @@ struct LoginView: View {
                 title: "Login",
                 isLoading: authService.isLoading
             ) {
-                await validateAndLogin()
+                validateAndLogin()
             }
             .padding(.horizontal, 24)
             .padding(.top, 20)
@@ -81,9 +81,7 @@ struct LoginView: View {
             // Biometric Login
             if canUseBiometrics {
                 Button(action: {
-                    Task {
-                        await authenticateWithBiometrics()
-                    }
+                    authenticateWithBiometrics()
                 }) {
                     HStack {
                         Image(systemName: LAContext().biometryType == .faceID ? "faceid" : "touchid")
@@ -139,12 +137,14 @@ struct LoginView: View {
         .navigationDestination(isPresented: $showForgotPassword) {
             Text("Forgot Password") // TODO: Create ForgotPasswordView
         }
-        .task {
-            canUseBiometrics = await authService.canUseBiometrics()
+        .onAppear {
+            let context = LAContext()
+            var error: NSError?
+            canUseBiometrics = context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
         }
     }
     
-    private func validateAndLogin() async {
+    private func validateAndLogin() {
         // Reset error state
         showError = false
         errorMessage = ""
@@ -169,24 +169,31 @@ struct LoginView: View {
             return
         }
         
-        do {
-            try await authService.login(email: email, password: password)
-            // Handle successful login
-        } catch {
-            showError = true
-            errorMessage = error.localizedDescription
-        }
+        authService.login(email: email, password: password)
     }
     
-    private func authenticateWithBiometrics() async {
-        do {
-            if try await authService.authenticateWithBiometrics() {
-                // Handle successful biometric authentication
-                try await authService.login(email: "", password: "")
-            }
-        } catch {
+    private func authenticateWithBiometrics() {
+        let context = LAContext()
+        var error: NSError?
+        
+        guard context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) else {
             showError = true
-            errorMessage = error.localizedDescription
+            errorMessage = error?.localizedDescription ?? "Biometric authentication not available"
+            return
+        }
+        
+        context.evaluatePolicy(
+            .deviceOwnerAuthenticationWithBiometrics,
+            localizedReason: "Authenticate to access your account"
+        ) { success, error in
+            DispatchQueue.main.async {
+                if success {
+                    self.authService.login(email: "", password: "")
+                } else if let error = error {
+                    self.showError = true
+                    self.errorMessage = error.localizedDescription
+                }
+            }
         }
     }
     
@@ -197,8 +204,10 @@ struct LoginView: View {
     }
 }
 
-#Preview {
-    NavigationStack {
-        LoginView()
+struct LoginView_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationStack {
+            LoginView()
+        }
     }
 }

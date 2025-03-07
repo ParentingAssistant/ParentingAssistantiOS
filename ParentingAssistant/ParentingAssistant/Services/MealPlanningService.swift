@@ -36,20 +36,17 @@ class MealPlanningService: ObservableObject {
         ]
     }
     
-    func generateNewPlan() async {
+    func generateNewPlan() {
         isGenerating = true
-        defer { isGenerating = false }
         
-        do {
-            // TODO: Implement AI-powered meal plan generation
-            // For now, just simulate a delay
-            try await Task.sleep(nanoseconds: 2 * 1_000_000_000)
+        // Simulate a delay for generating a new meal plan
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
+            guard let self = self else { return }
             
-            // Update meals with new plan
-            // This is where you would integrate with your AI service
+            // TODO: Implement AI-powered meal plan generation
             print("Generated new meal plan")
-        } catch {
-            self.error = error.localizedDescription
+            
+            self.isGenerating = false
         }
     }
 } 

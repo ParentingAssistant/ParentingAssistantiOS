@@ -3,14 +3,16 @@ import SwiftUI
 struct LoadingButton: View {
     let title: String
     let isLoading: Bool
-    let action: () async -> Void
+    let action: () -> Void
+    
+    init(title: String, isLoading: Bool, action: @escaping () -> Void) {
+        self.title = title
+        self.isLoading = isLoading
+        self.action = action
+    }
     
     var body: some View {
-        Button(action: {
-            Task {
-                await action()
-            }
-        }) {
+        Button(action: action) {
             ZStack {
                 // Button Text
                 Text(title)
@@ -41,14 +43,20 @@ struct LoadingButton: View {
     }
 }
 
-#Preview {
-    VStack(spacing: 20) {
-        LoadingButton(title: "Sign In", isLoading: false) {
-            // Action
+struct LoadingButton_Previews: PreviewProvider {
+    static var previews: some View {
+        VStack(spacing: 20) {
+            LoadingButton(
+                title: "Sign In",
+                isLoading: false,
+                action: { print("Button tapped") }
+            )
+            LoadingButton(
+                title: "Loading...",
+                isLoading: true,
+                action: { print("Button tapped") }
+            )
         }
-        LoadingButton(title: "Loading...", isLoading: true) {
-            // Action
-        }
+        .padding()
     }
-    .padding()
 } 

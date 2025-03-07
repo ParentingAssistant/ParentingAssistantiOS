@@ -1,4 +1,5 @@
 import SwiftUI
+import Foundation
 
 @MainActor
 class StoryGenerationService: ObservableObject {
@@ -10,33 +11,29 @@ class StoryGenerationService: ObservableObject {
     
     private init() {}
     
-    func generateStory(childName: String, theme: StoryTheme) async {
+    func generateStory(childName: String, theme: StoryTheme) {
         isGenerating = true
         generatedStory = nil
         error = nil
         
-        do {
-            // TODO: Implement AI-powered story generation
-            // For now, just simulate a delay and return a placeholder story
-            try await Task.sleep(nanoseconds: 2 * 1_000_000_000)
+        // Simulate a delay for story generation
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
+            guard let self = self else { return }
             
             // Generate a simple placeholder story based on the theme
             let story = """
             Once upon a time, there was a wonderful child named \(childName). 
             
-            \(getThemeIntro(theme: theme, childName: childName))
+            \(self.getThemeIntro(theme: theme, childName: childName))
             
             And so, \(childName)'s amazing adventure came to an end, but the memories would last forever.
             
             The End 🌟
             """
             
-            generatedStory = story
-        } catch {
-            self.error = error.localizedDescription
+            self.generatedStory = story
+            self.isGenerating = false
         }
-        
-        isGenerating = false
     }
     
     private func getThemeIntro(theme: StoryTheme, childName: String) -> String {

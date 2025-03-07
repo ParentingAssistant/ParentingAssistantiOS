@@ -46,12 +46,10 @@ struct BedtimeStoryView: View {
                 // Generate Button
                 Button(action: {
                     isNameFieldFocused = false
-                    Task {
-                        await storyService.generateStory(
-                            childName: childName.isEmpty ? "Little One" : childName,
-                            theme: selectedTheme
-                        )
-                    }
+                    storyService.generateStory(
+                        childName: childName.isEmpty ? "Little One" : childName,
+                        theme: selectedTheme
+                    )
                 }) {
                     HStack {
                         if storyService.isGenerating {
