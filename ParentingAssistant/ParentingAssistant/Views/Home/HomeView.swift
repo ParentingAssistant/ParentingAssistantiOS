@@ -37,7 +37,7 @@ struct HomeView: View {
                                 )
                             }
                             
-                            NavigationLink(destination: Text("Bedtime Stories")) {
+                            NavigationLink(destination: BedtimeStoryView()) {
                                 FeatureCard(
                                     icon: "book.fill",
                                     title: "Bedtime Stories",
@@ -83,8 +83,7 @@ struct HomeView: View {
             
             // Stories Tab
             NavigationStack {
-                Text("Bedtime Stories")
-                    .navigationTitle("Stories")
+                BedtimeStoryView()
             }
             .tabItem {
                 Label("Stories", systemImage: "book.fill")
