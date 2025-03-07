@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		FA0D6EB12D7AC0B600AF0365 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = FA0D6EB02D7AC0B600AF0365 /* GoogleService-Info.plist */; };
+		FA168D072D7B4A0900ABF528 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = FA168D062D7B4A0900ABF528 /* GoogleService-Info.plist */; };
 		FAA887462D7AC5A700639E34 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = FAA887452D7AC5A700639E34 /* FirebaseAnalytics */; };
 		FAA887482D7AC5A700639E34 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = FAA887472D7AC5A700639E34 /* FirebaseAuth */; };
 		FAA8874A2D7AC5A700639E34 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = FAA887492D7AC5A700639E34 /* FirebaseFirestore */; };
@@ -34,7 +34,7 @@
 		FA0D6E3D2D7A24AF00AF0365 /* ParentingAssistant.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ParentingAssistant.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FA0D6E4E2D7A24B000AF0365 /* ParentingAssistantTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ParentingAssistantTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		FA0D6E582D7A24B000AF0365 /* ParentingAssistantUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ParentingAssistantUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		FA0D6EB02D7AC0B600AF0365 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		FA168D062D7B4A0900ABF528 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -90,7 +90,7 @@
 				FA0D6E512D7A24B000AF0365 /* ParentingAssistantTests */,
 				FA0D6E5B2D7A24B000AF0365 /* ParentingAssistantUITests */,
 				FA0D6E3E2D7A24AF00AF0365 /* Products */,
-				FA0D6EB02D7AC0B600AF0365 /* GoogleService-Info.plist */,
+				FA168D062D7B4A0900ABF528 /* GoogleService-Info.plist */,
 				FAA887442D7AC5A700639E34 /* Frameworks */,
 			);
 			sourceTree = "<group>";
@@ -238,7 +238,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FA0D6EB12D7AC0B600AF0365 /* GoogleService-Info.plist in Resources */,
+				FA168D072D7B4A0900ABF528 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
