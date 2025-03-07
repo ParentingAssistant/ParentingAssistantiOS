@@ -63,6 +63,14 @@ struct HomeView: View {
                                     subtitle: "Track daily schedules"
                                 )
                             }
+                            
+                            NavigationLink(destination: RunningErrandsView()) {
+                                FeatureCard(
+                                    icon: "cart.fill",
+                                    title: "Running Errands",
+                                    subtitle: "Smart shopping & scheduling"
+                                )
+                            }
                         }
                         .padding(.horizontal)
                     }
