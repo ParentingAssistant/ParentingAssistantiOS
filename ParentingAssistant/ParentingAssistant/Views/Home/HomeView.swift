@@ -21,13 +21,6 @@ struct HomeView: View {
                                     .fontWeight(.bold)
                             }
                             Spacer()
-                            Button(action: {
-                                try? authService.signOut()
-                            }) {
-                                Image(systemName: "rectangle.portrait.and.arrow.right")
-                                    .font(.title3)
-                                    .foregroundColor(.blue)
-                            }
                         }
                         .padding(.horizontal)
                         
