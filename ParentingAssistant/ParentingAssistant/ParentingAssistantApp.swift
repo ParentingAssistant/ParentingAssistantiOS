@@ -6,9 +6,14 @@
 //
 
 import SwiftUI
+import FirebaseCore
 
 @main
 struct ParentingAssistantApp: App {
+    init() {
+        FirebaseConfig.configure()
+    }
+    
     var body: some Scene {
         WindowGroup {
             OnboardingView()
