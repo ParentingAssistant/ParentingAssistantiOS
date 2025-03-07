@@ -62,9 +62,7 @@ struct ForgotPasswordView: View {
                 title: "Send Reset Link",
                 isLoading: authService.isLoading
             ) {
-                Task {
-                    await validateAndSendResetEmail()
-                }
+                validateAndSendResetEmail()
             }
             .padding(.horizontal, 24)
             .padding(.top, 20)
@@ -85,7 +83,7 @@ struct ForgotPasswordView: View {
         }
     }
     
-    private func validateAndSendResetEmail() async {
+    private func validateAndSendResetEmail() {
         // Reset states
         showError = false
         showSuccess = false
@@ -104,13 +102,7 @@ struct ForgotPasswordView: View {
             return
         }
         
-        do {
-            try await authService.resetPassword(email: email)
-            showSuccess = true
-        } catch {
-            showError = true
-            errorMessage = error.localizedDescription
-        }
+        authService.resetPassword(email: email)
     }
     
     private func isValidEmail(_ email: String) -> Bool {
@@ -120,8 +112,10 @@ struct ForgotPasswordView: View {
     }
 }
 
-#Preview {
-    NavigationStack {
-        ForgotPasswordView()
+struct ForgotPasswordView_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationStack {
+            ForgotPasswordView()
+        }
     }
 } 

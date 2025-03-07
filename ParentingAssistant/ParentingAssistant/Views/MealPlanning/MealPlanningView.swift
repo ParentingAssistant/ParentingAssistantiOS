@@ -51,7 +51,9 @@ struct MealPlanningView: View {
                 }
                 
                 // Generate New Plan Button
-                Button(action: { Task { await mealService.generateNewPlan() } }) {
+                Button(action: {
+                    mealService.generateNewPlan()
+                }) {
                     HStack {
                         if mealService.isGenerating {
                             ProgressView()

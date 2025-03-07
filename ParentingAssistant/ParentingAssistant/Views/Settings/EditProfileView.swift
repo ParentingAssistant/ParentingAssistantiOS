@@ -9,6 +9,9 @@ struct EditProfileView: View {
     @State private var isLoading = false
     @State private var showAlert = false
     @State private var alertMessage = ""
+    @State private var showSuccessMessage = false
+    @State private var error = ""
+    @State private var showErrorAlert = false
     
     var body: some View {
         NavigationView {
@@ -26,14 +29,15 @@ struct EditProfileView: View {
                 }
                 
                 Section {
-                    Button(action: saveProfile) {
-                        if isLoading {
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle())
-                        } else {
-                            Text("Save Changes")
-                                .frame(maxWidth: .infinity)
+                    Button(action: saveChanges) {
+                        HStack {
+                            if isLoading {
+                                ProgressView()
+                            } else {
+                                Text("Save Changes")
+                            }
                         }
+                        .frame(maxWidth: .infinity)
                     }
                     .disabled(isLoading || !isValid)
                 }
@@ -69,25 +73,21 @@ struct EditProfileView: View {
         !fullName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
     
-    private func saveProfile() {
-        guard isValid else {
-            alertMessage = "Please enter a valid name"
-            showAlert = true
-            return
-        }
-        
+    private func saveChanges() {
         isLoading = true
-        
-        Task {
-            do {
-                try await authService.updateProfile(fullName: fullName)
-                alertMessage = "Profile updated successfully"
-                showAlert = true
-            } catch {
-                alertMessage = "Failed to update profile: \(error.localizedDescription)"
-                showAlert = true
+        authService.updateProfile(fullName: fullName) { result in
+            DispatchQueue.main.async {
+                isLoading = false
+                
+                switch result {
+                case .success:
+                    alertMessage = "Profile updated successfully"
+                    showAlert = true
+                case .failure(let error):
+                    alertMessage = error.localizedDescription
+                    showAlert = true
+                }
             }
-            isLoading = false
         }
     }
 }

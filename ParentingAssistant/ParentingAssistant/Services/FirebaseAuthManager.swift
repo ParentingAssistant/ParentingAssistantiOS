@@ -2,6 +2,11 @@ import Foundation
 import FirebaseAuth
 import FirebaseFirestore
 
+enum FirebaseError: Error {
+    case authError(String)
+    case firestoreError(String)
+}
+
 class FirebaseAuthManager {
     static let shared = FirebaseAuthManager()
     
@@ -11,24 +16,58 @@ class FirebaseAuthManager {
     
     // MARK: - Authentication Methods
     
-    func signIn(withEmail email: String, password: String) async throws -> AuthDataResult {
+    func signIn(withEmail email: String, password: String, completion: @escaping (Result<AuthDataResult, Error>) -> Void) {
         print("Attempting to sign in with email: \(email)")
-        let result = try await Auth.auth().signIn(withEmail: email, password: password)
-        print("Successfully signed in user: \(result.user.uid)")
-        return result
+        Auth.auth().signIn(withEmail: email, password: password) { result, error in
+            if let error = error {
+                print("Sign in failed: \(error.localizedDescription)")
+                completion(.failure(error))
+                return
+            }
+            
+            guard let result = result else {
+                print("Sign in failed: No result")
+                completion(.failure(FirebaseError.authError("No result")))
+                return
+            }
+            
+            print("Successfully signed in user: \(result.user.uid)")
+            completion(.success(result))
+        }
     }
     
-    func createUser(withEmail email: String, password: String) async throws -> AuthDataResult {
+    func createUser(withEmail email: String, password: String, completion: @escaping (Result<AuthDataResult, Error>) -> Void) {
         print("Attempting to create user with email: \(email)")
-        let result = try await Auth.auth().createUser(withEmail: email, password: password)
-        print("Successfully created user: \(result.user.uid)")
-        return result
+        Auth.auth().createUser(withEmail: email, password: password) { result, error in
+            if let error = error {
+                print("User creation failed: \(error.localizedDescription)")
+                completion(.failure(error))
+                return
+            }
+            
+            guard let result = result else {
+                print("User creation failed: No result")
+                completion(.failure(FirebaseError.authError("No result")))
+                return
+            }
+            
+            print("Successfully created user: \(result.user.uid)")
+            completion(.success(result))
+        }
     }
     
-    func resetPassword(forEmail email: String) async throws {
+    func resetPassword(forEmail email: String, completion: @escaping (Result<Void, Error>) -> Void) {
         print("Attempting to reset password for email: \(email)")
-        try await Auth.auth().sendPasswordReset(withEmail: email)
-        print("Password reset email sent successfully")
+        Auth.auth().sendPasswordReset(withEmail: email) { error in
+            if let error = error {
+                print("Password reset failed: \(error.localizedDescription)")
+                completion(.failure(error))
+                return
+            }
+            
+            print("Password reset email sent successfully")
+            completion(.success(()))
+        }
     }
     
     func signOut() throws {
@@ -39,30 +78,53 @@ class FirebaseAuthManager {
     
     // MARK: - Firestore Methods
     
-    func createUserDocument(userId: String, userData: [String: Any]) async throws {
+    func createUserDocument(userId: String, userData: [String: Any], completion: @escaping (Result<Void, Error>) -> Void) {
         print("Creating user document for ID: \(userId)")
         let db = Firestore.firestore()
-        try await db.collection("users").document(userId).setData(userData)
-        print("Successfully created user document")
-    }
-    
-    func fetchUserDocument(userId: String) async throws -> [String: Any]? {
-        print("Fetching user document for ID: \(userId)")
-        let db = Firestore.firestore()
-        let document = try await db.collection("users").document(userId).getDocument()
-        if document.exists {
-            print("Successfully fetched user document")
-            return document.data()
-        } else {
-            print("No user document found")
-            return nil
+        db.collection("users").document(userId).setData(userData) { error in
+            if let error = error {
+                print("Failed to create user document: \(error.localizedDescription)")
+                completion(.failure(error))
+                return
+            }
+            
+            print("Successfully created user document")
+            completion(.success(()))
         }
     }
     
-    func updateUserDocument(userId: String, userData: [String: Any]) async throws {
+    func fetchUserDocument(userId: String, completion: @escaping (Result<[String: Any]?, Error>) -> Void) {
+        print("Fetching user document for ID: \(userId)")
+        let db = Firestore.firestore()
+        db.collection("users").document(userId).getDocument { document, error in
+            if let error = error {
+                print("Failed to fetch user document: \(error.localizedDescription)")
+                completion(.failure(error))
+                return
+            }
+            
+            if let document = document, document.exists {
+                print("Successfully fetched user document")
+                completion(.success(document.data()))
+            } else {
+                print("No user document found")
+                completion(.success(nil))
+            }
+        }
+    }
+    
+    func updateUserDocument(userId: String, userData: [String: Any], completion: @escaping (Result<Void, Error>) -> Void) {
         print("Updating user document for ID: \(userId)")
         let db = Firestore.firestore()
-        try await db.collection("users").document(userId).updateData(userData)
-        print("Successfully updated user document")
+        db.collection("users").document(userId).updateData(userData) { error in
+            if let error = error {
+                print("Failed to update user document: \(error.localizedDescription)")
+                completion(.failure(error))
+                return
+            }
+            
+            print("Successfully updated user document")
+            completion(.success(()))
+        }
     }
 } 
