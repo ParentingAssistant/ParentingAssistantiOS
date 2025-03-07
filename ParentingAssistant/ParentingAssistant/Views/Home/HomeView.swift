@@ -29,7 +29,7 @@ struct HomeView: View {
                             GridItem(.flexible(), spacing: 16),
                             GridItem(.flexible(), spacing: 16)
                         ], spacing: 16) {
-                            NavigationLink(destination: Text("Meal Planning")) {
+                            NavigationLink(destination: MealPlanningView()) {
                                 FeatureCard(
                                     icon: "fork.knife",
                                     title: "Meal Planning",
@@ -74,8 +74,7 @@ struct HomeView: View {
             
             // Meal Planning Tab
             NavigationStack {
-                Text("Meal Planning")
-                    .navigationTitle("Meal Planning")
+                MealPlanningView()
             }
             .tabItem {
                 Label("Meals", systemImage: "fork.knife")
