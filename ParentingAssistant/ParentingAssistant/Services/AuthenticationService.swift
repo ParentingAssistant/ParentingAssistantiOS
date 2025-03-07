@@ -69,10 +69,11 @@ class AuthenticationService: ObservableObject {
             print("User created successfully, creating user document...")
 
             let userData: [String: Any] = [
+                "id": result.user.uid,
                 "fullName": fullName,
                 "email": email,
-                "createdAt": Date(),
-                "lastLoginAt": Date(),
+                "createdAt": Timestamp(date: Date()),
+                "lastLoginAt": Timestamp(date: Date()),
                 "dietaryRestrictions": [],
                 "cuisineTypes": [],
                 "cookingDifficulty": CookingDifficulty.easy.rawValue,
@@ -225,7 +226,7 @@ class AuthenticationService: ObservableObject {
     
     func updateProfile(fullName: String) async throws {
         print("Updating profile for user: \(currentUser?.id ?? "unknown")")
-        guard let userId = currentUser?.id else {
+        guard let userId = Auth.auth().currentUser?.uid else {
             throw NSError(domain: "AuthenticationService", code: -1, userInfo: [NSLocalizedDescriptionKey: "No user logged in"])
         }
         
@@ -241,7 +242,7 @@ class AuthenticationService: ObservableObject {
             // Create new user instance with updated name
             if let currentUser = currentUser {
                 self.currentUser = User(
-                    id: currentUser.id,
+                    id: userId,
                     email: currentUser.email,
                     fullName: fullName,
                     children: currentUser.children,
