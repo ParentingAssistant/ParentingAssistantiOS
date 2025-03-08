@@ -87,6 +87,14 @@ struct HomeView: View {
                                     subtitle: "Track development & health"
                                 )
                             }
+                            
+                            NavigationLink(destination: FamilySchedulerView()) {
+                                FeatureCard(
+                                    icon: "calendar.badge.clock",
+                                    title: "Family Scheduler",
+                                    subtitle: "Organize events & tasks"
+                                )
+                            }
                         }
                         .padding(.horizontal)
                     }
