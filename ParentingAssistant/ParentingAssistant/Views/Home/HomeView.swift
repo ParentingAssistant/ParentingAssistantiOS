@@ -40,6 +40,14 @@ struct HomeView: View {
                                 )
                             }
                             
+                            NavigationLink(destination: KidsRoutinesView()) {
+                                FeatureCard(
+                                    icon: "checklist.checked",
+                                    title: "Kids' Routines",
+                                    subtitle: "Manage daily tasks"
+                                )
+                            }
+                            
                             NavigationLink(destination: BedtimeStoryView()) {
                                 FeatureCard(
                                     icon: "book.fill",
