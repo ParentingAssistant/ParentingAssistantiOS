@@ -60,7 +60,8 @@ struct HomeView: View {
                                 FeatureCard(
                                     icon: "house.fill",
                                     title: "Household Chores",
-                                    subtitle: "Manage family tasks"
+                                    subtitle: "Manage family tasks",
+                                    isBeta: true
                                 )
                             }
                             
@@ -68,7 +69,8 @@ struct HomeView: View {
                                 FeatureCard(
                                     icon: "figure.2.and.child.holdinghands",
                                     title: "Kids' Activities",
-                                    subtitle: "Fun & educational activities"
+                                    subtitle: "Fun & educational activities",
+                                    isBeta: true
                                 )
                             }
                             
@@ -76,7 +78,8 @@ struct HomeView: View {
                                 FeatureCard(
                                     icon: "cart.fill",
                                     title: "Running Errands",
-                                    subtitle: "Smart shopping & scheduling"
+                                    subtitle: "Smart shopping & scheduling",
+                                    isBeta: true
                                 )
                             }
                             
@@ -84,7 +87,8 @@ struct HomeView: View {
                                 FeatureCard(
                                     icon: "heart.text.square.fill",
                                     title: "Emotional Support",
-                                    subtitle: "Help kids manage emotions"
+                                    subtitle: "Help kids manage emotions",
+                                    isBeta: true
                                 )
                             }
                             
@@ -92,7 +96,8 @@ struct HomeView: View {
                                 FeatureCard(
                                     icon: "chart.bar.fill",
                                     title: "Health & Growth",
-                                    subtitle: "Track development & health"
+                                    subtitle: "Track development & health",
+                                    isBeta: true
                                 )
                             }
                             
@@ -100,7 +105,8 @@ struct HomeView: View {
                                 FeatureCard(
                                     icon: "calendar.badge.clock",
                                     title: "Family Scheduler",
-                                    subtitle: "Organize events & tasks"
+                                    subtitle: "Organize events & tasks",
+                                    isBeta: true
                                 )
                             }
                             
@@ -108,7 +114,8 @@ struct HomeView: View {
                                 FeatureCard(
                                     icon: "figure.mind.and.body",
                                     title: "Work-Life Balance",
-                                    subtitle: "Focus & self-care tools"
+                                    subtitle: "Focus & self-care tools",
+                                    isBeta: true
                                 )
                             }
                             
@@ -116,7 +123,8 @@ struct HomeView: View {
                                 FeatureCard(
                                     icon: "moon.stars.fill",
                                     title: "Sleep Support",
-                                    subtitle: "Track & improve sleep"
+                                    subtitle: "Track & improve sleep",
+                                    isBeta: true
                                 )
                             }
                             
@@ -124,7 +132,8 @@ struct HomeView: View {
                                 FeatureCard(
                                     icon: "airplane.circle.fill",
                                     title: "Travel Prep",
-                                    subtitle: "Plan trips & outings"
+                                    subtitle: "Plan trips & outings",
+                                    isBeta: true
                                 )
                             }
                         }
@@ -173,29 +182,44 @@ struct FeatureCard: View {
     let icon: String
     let title: String
     let subtitle: String
+    var isBeta: Bool = false
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Image(systemName: icon)
-                .font(.title)
-                .foregroundColor(.blue)
-                .frame(width: 40, height: 40)
-                .background(Color.blue.opacity(0.1))
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text(title)
-                    .font(.headline)
-                    .lineLimit(2)
-                Text(subtitle)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                    .lineLimit(2)
+        ZStack(alignment: .topTrailing) {
+            VStack(alignment: .leading, spacing: 12) {
+                Image(systemName: icon)
+                    .font(.title)
+                    .foregroundColor(.blue)
+                    .frame(width: 40, height: 40)
+                    .background(Color.blue.opacity(0.1))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(title)
+                        .font(.headline)
+                        .lineLimit(2)
+                    Text(subtitle)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .lineLimit(2)
+                }
+                Spacer()
             }
-            Spacer()
+            .frame(maxWidth: .infinity, minHeight: 140, alignment: .leading)
+            .padding()
+            
+            if isBeta {
+                Text("BETA")
+                    .font(.caption2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Color.orange)
+                    .cornerRadius(4)
+                    .padding(8)
+            }
         }
-        .frame(maxWidth: .infinity, minHeight: 140, alignment: .leading)
-        .padding()
         .background(Color(.systemBackground))
         .cornerRadius(16)
         .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
