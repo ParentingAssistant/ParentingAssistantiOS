@@ -95,6 +95,14 @@ struct HomeView: View {
                                     subtitle: "Organize events & tasks"
                                 )
                             }
+                            
+                            NavigationLink(destination: WorkLifeBalanceView()) {
+                                FeatureCard(
+                                    icon: "figure.mind.and.body",
+                                    title: "Work-Life Balance",
+                                    subtitle: "Focus & self-care tools"
+                                )
+                            }
                         }
                         .padding(.horizontal)
                     }
