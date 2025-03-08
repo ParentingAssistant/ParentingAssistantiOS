@@ -79,6 +79,14 @@ struct HomeView: View {
                                     subtitle: "Help kids manage emotions"
                                 )
                             }
+                            
+                            NavigationLink(destination: HealthTrackingView()) {
+                                FeatureCard(
+                                    icon: "chart.bar.fill",
+                                    title: "Health & Growth",
+                                    subtitle: "Track development & health"
+                                )
+                            }
                         }
                         .padding(.horizontal)
                     }
@@ -138,12 +146,15 @@ struct FeatureCard: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .font(.headline)
+                    .lineLimit(2)
                 Text(subtitle)
                     .font(.subheadline)
                     .foregroundColor(.secondary)
+                    .lineLimit(2)
             }
+            Spacer()
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity, minHeight: 140, alignment: .leading)
         .padding()
         .background(Color(.systemBackground))
         .cornerRadius(16)
