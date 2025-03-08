@@ -111,6 +111,14 @@ struct HomeView: View {
                                     subtitle: "Track & improve sleep"
                                 )
                             }
+                            
+                            NavigationLink(destination: TravelPrepView()) {
+                                FeatureCard(
+                                    icon: "airplane.circle.fill",
+                                    title: "Travel Prep",
+                                    subtitle: "Plan trips & outings"
+                                )
+                            }
                         }
                         .padding(.horizontal)
                     }
