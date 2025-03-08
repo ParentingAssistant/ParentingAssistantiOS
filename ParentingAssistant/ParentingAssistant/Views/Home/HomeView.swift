@@ -103,6 +103,14 @@ struct HomeView: View {
                                     subtitle: "Focus & self-care tools"
                                 )
                             }
+                            
+                            NavigationLink(destination: SleepStrugglesView()) {
+                                FeatureCard(
+                                    icon: "moon.stars.fill",
+                                    title: "Sleep Support",
+                                    subtitle: "Track & improve sleep"
+                                )
+                            }
                         }
                         .padding(.horizontal)
                     }
