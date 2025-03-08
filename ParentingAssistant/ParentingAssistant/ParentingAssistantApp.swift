@@ -11,12 +11,13 @@ import FirebaseCore
 @main
 struct ParentingAssistantApp: App {
     init() {
-        FirebaseConfig.configure()
+        FirebaseApp.configure()
     }
     
     var body: some Scene {
         WindowGroup {
             RootView()
+                .preferredColorScheme(.light)
         }
     }
 }
