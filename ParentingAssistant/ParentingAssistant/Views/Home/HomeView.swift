@@ -79,6 +79,14 @@ struct HomeView: View {
                                     subtitle: "Help kids manage emotions"
                                 )
                             }
+                            
+                            NavigationLink(destination: HealthTrackingView()) {
+                                FeatureCard(
+                                    icon: "chart.bar.fill",
+                                    title: "Health & Growth",
+                                    subtitle: "Track development & health"
+                                )
+                            }
                         }
                         .padding(.horizontal)
                     }
