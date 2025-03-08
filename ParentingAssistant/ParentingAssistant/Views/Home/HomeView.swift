@@ -48,7 +48,7 @@ struct HomeView: View {
                                 )
                             }
                             
-                            NavigationLink(destination: ChoresView()) {
+                            NavigationLink(destination: HouseholdChoresView()) {
                                 FeatureCard(
                                     icon: "house.fill",
                                     title: "Household Chores",
