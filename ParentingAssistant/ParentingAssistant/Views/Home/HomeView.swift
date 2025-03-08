@@ -32,11 +32,11 @@ struct HomeView: View {
                             ],
                             spacing: 16
                         ) {
-                            NavigationLink(destination: MealPlanningView()) {
+                            NavigationLink(destination: MealPrepView()) {
                                 FeatureCard(
                                     icon: "fork.knife",
-                                    title: "Meal Planning",
-                                    subtitle: "Plan your family meals"
+                                    title: "Meal Prep",
+                                    subtitle: "Plan meals & groceries"
                                 )
                             }
                             
