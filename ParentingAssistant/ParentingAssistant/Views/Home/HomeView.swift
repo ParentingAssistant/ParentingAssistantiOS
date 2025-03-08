@@ -71,6 +71,14 @@ struct HomeView: View {
                                     subtitle: "Smart shopping & scheduling"
                                 )
                             }
+                            
+                            NavigationLink(destination: EmotionalNeedsView()) {
+                                FeatureCard(
+                                    icon: "heart.text.square.fill",
+                                    title: "Emotional Support",
+                                    subtitle: "Help kids manage emotions"
+                                )
+                            }
                         }
                         .padding(.horizontal)
                     }
