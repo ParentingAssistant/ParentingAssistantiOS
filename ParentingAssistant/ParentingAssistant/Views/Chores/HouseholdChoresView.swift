@@ -295,22 +295,112 @@ struct CleaningTipCard: View {
 
 struct AddChoreView: View {
     @Environment(\.dismiss) private var dismiss
+    @State private var title = ""
+    @State private var assignedTo = "Parent"
+    @State private var dueTime = Date()
+    @State private var points = 5
+    @State private var selectedIcon = "house.fill"
+    @State private var notes = ""
+    @State private var isRecurring = false
+    @State private var frequency = "Daily"
+    
+    let familyMembers = ["Parent", "Kids", "Teen", "Dad", "Mom"]
+    let frequencies = ["Daily", "Weekly", "Monthly"]
+    let iconOptions = [
+        "house.fill",
+        "bed.double.fill",
+        "dishwasher.fill",
+        "washer.fill",
+        "vacuum.fill",
+        "trash.fill",
+        "leaf.fill",
+        "cart.fill",
+        "pawprint.fill",
+        "book.fill"
+    ]
     
     var body: some View {
         NavigationView {
             Form {
-                Text("Add Chore Form")
-                    .foregroundColor(.secondary)
+                Section(header: Text("Chore Details")) {
+                    TextField("Title", text: $title)
+                    
+                    Picker("Assigned To", selection: $assignedTo) {
+                        ForEach(familyMembers, id: \.self) { member in
+                            Text(member).tag(member)
+                        }
+                    }
+                    
+                    DatePicker("Due Time", selection: $dueTime, displayedComponents: [.hourAndMinute, .date])
+                }
+                
+                Section(header: Text("Points & Icon")) {
+                    Stepper("Points: \(points)", value: $points, in: 1...20)
+                    
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 15) {
+                            ForEach(iconOptions, id: \.self) { icon in
+                                IconSelectionButton(
+                                    icon: icon,
+                                    isSelected: icon == selectedIcon,
+                                    action: { selectedIcon = icon }
+                                )
+                            }
+                        }
+                        .padding(.vertical, 8)
+                    }
+                }
+                
+                Section(header: Text("Recurrence")) {
+                    Toggle("Recurring Chore", isOn: $isRecurring)
+                    
+                    if isRecurring {
+                        Picker("Frequency", selection: $frequency) {
+                            ForEach(frequencies, id: \.self) { freq in
+                                Text(freq).tag(freq)
+                            }
+                        }
+                    }
+                }
+                
+                Section(header: Text("Additional Notes")) {
+                    TextEditor(text: $notes)
+                        .frame(height: 100)
+                }
             }
             .navigationTitle("Add Chore")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
                         dismiss()
                     }
                 }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Save") {
+                        // Save chore logic here
+                        dismiss()
+                    }
+                    .disabled(title.isEmpty)
+                }
             }
+        }
+    }
+}
+
+struct IconSelectionButton: View {
+    let icon: String
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: icon)
+                .font(.title2)
+                .foregroundColor(isSelected ? .white : .blue)
+                .frame(width: 44, height: 44)
+                .background(isSelected ? Color.blue : Color.blue.opacity(0.1))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
         }
     }
 }
@@ -347,12 +437,122 @@ struct VoiceRemindersView: View {
 
 struct CleaningTipsView: View {
     @Environment(\.dismiss) private var dismiss
+    @State private var selectedCategory = "All"
+    
+    let categories = ["All", "Kitchen", "Bathroom", "Laundry", "Living Room", "Kids Room"]
+    
+    var tips: [CleaningTip] = [
+        // Kitchen Tips
+        CleaningTip(
+            title: "Quick Kitchen Clean",
+            description: "Wipe counters while cooking to prevent buildup",
+            duration: "2 mins",
+            category: "Kitchen"
+        ),
+        CleaningTip(
+            title: "Microwave Magic",
+            description: "Heat a bowl of water with lemon for 2 minutes to easily wipe away stains",
+            duration: "5 mins",
+            category: "Kitchen"
+        ),
+        CleaningTip(
+            title: "Sink Freshener",
+            description: "Run lemon and ice through garbage disposal for fresh scent",
+            duration: "1 min",
+            category: "Kitchen"
+        ),
+        
+        // Bathroom Tips
+        CleaningTip(
+            title: "Shower Spray",
+            description: "Use daily shower spray to prevent soap scum buildup",
+            duration: "30 secs",
+            category: "Bathroom"
+        ),
+        CleaningTip(
+            title: "Mirror Shine",
+            description: "Use newspaper with glass cleaner for streak-free mirrors",
+            duration: "2 mins",
+            category: "Bathroom"
+        ),
+        CleaningTip(
+            title: "Toilet Fresh",
+            description: "Drop a fizzing tablet weekly for continuous cleaning",
+            duration: "1 min",
+            category: "Bathroom"
+        ),
+        
+        // Laundry Tips
+        CleaningTip(
+            title: "Sort Smart",
+            description: "Use separate hampers for lights, darks, and delicates",
+            duration: "Ongoing",
+            category: "Laundry"
+        ),
+        CleaningTip(
+            title: "Stain Solution",
+            description: "Treat stains immediately with cold water and detergent",
+            duration: "1 min",
+            category: "Laundry"
+        ),
+        
+        // Living Room Tips
+        CleaningTip(
+            title: "Quick Dust",
+            description: "Use dryer sheets to dust surfaces and repel future dust",
+            duration: "5 mins",
+            category: "Living Room"
+        ),
+        
+        // Kids Room Tips
+        CleaningTip(
+            title: "Toy Organization",
+            description: "Use labeled bins for quick cleanup and sorting",
+            duration: "10 mins",
+            category: "Kids Room"
+        ),
+        CleaningTip(
+            title: "Quick Pickup Game",
+            description: "Make cleanup fun with a 5-minute pickup race",
+            duration: "5 mins",
+            category: "Kids Room"
+        )
+    ]
+    
+    var filteredTips: [CleaningTip] {
+        selectedCategory == "All" ? tips : tips.filter { $0.category == selectedCategory }
+    }
     
     var body: some View {
         NavigationView {
             ScrollView {
-                Text("All Cleaning Tips")
-                    .foregroundColor(.secondary)
+                VStack(spacing: 20) {
+                    // Category Filter
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 12) {
+                            ForEach(categories, id: \.self) { category in
+                                FilterButton(
+                                    title: category,
+                                    isSelected: category == selectedCategory
+                                ) {
+                                    withAnimation {
+                                        selectedCategory = category
+                                    }
+                                }
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                    
+                    // Tips List
+                    LazyVStack(spacing: 16) {
+                        ForEach(filteredTips) { tip in
+                            CleaningTipCard(tip: tip)
+                        }
+                    }
+                    .padding(.horizontal)
+                }
+                .padding(.vertical)
             }
             .navigationTitle("Cleaning Tips")
             .navigationBarTitleDisplayMode(.inline)
