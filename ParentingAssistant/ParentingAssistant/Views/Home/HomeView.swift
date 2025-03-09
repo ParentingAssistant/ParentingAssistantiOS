@@ -37,15 +37,6 @@ struct HomeView: View {
                                     icon: "fork.knife",
                                     title: "Meal Prep",
                                     subtitle: "Plan meals & groceries"
-
-                                )
-                            }
-                            
-                            NavigationLink(destination: KidsRoutinesView()) {
-                                FeatureCard(
-                                    icon: "checklist.checked",
-                                    title: "Kids' Routines",
-                                    subtitle: "Manage daily tasks"
                                 )
                             }
                             
@@ -54,6 +45,15 @@ struct HomeView: View {
                                     icon: "book.fill",
                                     title: "Bedtime Stories",
                                     subtitle: "Read stories to your kids"
+                                )
+                            }
+                            
+                            NavigationLink(destination: KidsRoutinesView()) {
+                                FeatureCard(
+                                    icon: "checklist.checked",
+                                    title: "Kids' Routines",
+                                    subtitle: "Manage daily tasks",
+                                    isBeta: true
                                 )
                             }
                             
