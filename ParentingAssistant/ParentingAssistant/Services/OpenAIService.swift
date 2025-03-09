@@ -69,13 +69,20 @@ class OpenAIService {
         
         URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
+                print("API Error: \(error.localizedDescription)")
                 completion(.failure(.apiError(error.localizedDescription)))
                 return
             }
             
             guard let data = data else {
+                print("Invalid Response: No data received")
                 completion(.failure(.invalidResponse))
                 return
+            }
+            
+            // Debugging: Print raw API response
+            if let responseString = String(data: data, encoding: .utf8) {
+                print("API Response: \(responseString)")
             }
             
             do {
@@ -86,6 +93,7 @@ class OpenAIService {
                     completion(.failure(.invalidResponse))
                 }
             } catch {
+                print("Decoding Error: \(error.localizedDescription)")
                 completion(.failure(.decodingError))
             }
         }.resume()
