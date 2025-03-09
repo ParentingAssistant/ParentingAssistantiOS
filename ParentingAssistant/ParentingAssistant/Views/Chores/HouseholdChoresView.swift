@@ -6,6 +6,7 @@ struct HouseholdChoresView: View {
     @State private var showingVoiceReminders = false
     @State private var showingCleaningTip = false
     @State private var selectedFilter = "All"
+    @State private var selectedCategory: ChoreCategory = .other
     
     let filters = ["All", "Today", "Upcoming", "Completed"]
     
@@ -101,7 +102,7 @@ struct HouseholdChoresView: View {
         }
         .navigationTitle("Household Chores")
         .sheet(isPresented: $showingAddChore) {
-            AddChoreView()
+            AddChoreView(category: selectedCategory)
         }
         .sheet(isPresented: $showingVoiceReminders) {
             VoiceRemindersView()
@@ -293,118 +294,6 @@ struct CleaningTipCard: View {
     }
 }
 
-struct AddChoreView: View {
-    @Environment(\.dismiss) private var dismiss
-    @State private var title = ""
-    @State private var assignedTo = "Parent"
-    @State private var dueTime = Date()
-    @State private var points = 5
-    @State private var selectedIcon = "house.fill"
-    @State private var notes = ""
-    @State private var isRecurring = false
-    @State private var frequency = "Daily"
-    
-    let familyMembers = ["Parent", "Kids", "Teen", "Dad", "Mom"]
-    let frequencies = ["Daily", "Weekly", "Monthly"]
-    let iconOptions = [
-        "house.fill",
-        "bed.double.fill",
-        "dishwasher.fill",
-        "washer.fill",
-        "vacuum.fill",
-        "trash.fill",
-        "leaf.fill",
-        "cart.fill",
-        "pawprint.fill",
-        "book.fill"
-    ]
-    
-    var body: some View {
-        NavigationView {
-            Form {
-                Section(header: Text("Chore Details")) {
-                    TextField("Title", text: $title)
-                    
-                    Picker("Assigned To", selection: $assignedTo) {
-                        ForEach(familyMembers, id: \.self) { member in
-                            Text(member).tag(member)
-                        }
-                    }
-                    
-                    DatePicker("Due Time", selection: $dueTime, displayedComponents: [.hourAndMinute, .date])
-                }
-                
-                Section(header: Text("Points & Icon")) {
-                    Stepper("Points: \(points)", value: $points, in: 1...20)
-                    
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 15) {
-                            ForEach(iconOptions, id: \.self) { icon in
-                                IconSelectionButton(
-                                    icon: icon,
-                                    isSelected: icon == selectedIcon,
-                                    action: { selectedIcon = icon }
-                                )
-                            }
-                        }
-                        .padding(.vertical, 8)
-                    }
-                }
-                
-                Section(header: Text("Recurrence")) {
-                    Toggle("Recurring Chore", isOn: $isRecurring)
-                    
-                    if isRecurring {
-                        Picker("Frequency", selection: $frequency) {
-                            ForEach(frequencies, id: \.self) { freq in
-                                Text(freq).tag(freq)
-                            }
-                        }
-                    }
-                }
-                
-                Section(header: Text("Additional Notes")) {
-                    TextEditor(text: $notes)
-                        .frame(height: 100)
-                }
-            }
-            .navigationTitle("Add Chore")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Save") {
-                        // Save chore logic here
-                        dismiss()
-                    }
-                    .disabled(title.isEmpty)
-                }
-            }
-        }
-    }
-}
-
-struct IconSelectionButton: View {
-    let icon: String
-    let isSelected: Bool
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            Image(systemName: icon)
-                .font(.title2)
-                .foregroundColor(isSelected ? .white : .blue)
-                .frame(width: 44, height: 44)
-                .background(isSelected ? Color.blue : Color.blue.opacity(0.1))
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-        }
-    }
-}
-
 struct VoiceRemindersView: View {
     @Environment(\.dismiss) private var dismiss
     
@@ -563,6 +452,23 @@ struct CleaningTipsView: View {
                     }
                 }
             }
+        }
+    }
+}
+
+struct IconSelectionButton: View {
+    let icon: String
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: icon)
+                .font(.title2)
+                .foregroundColor(isSelected ? .white : .blue)
+                .frame(width: 44, height: 44)
+                .background(isSelected ? Color.blue : Color.blue.opacity(0.1))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
         }
     }
 }

@@ -1,44 +1,25 @@
 import Foundation
+import FirebaseFirestore
 
-struct Meal: Identifiable {
+struct Meal: Codable, Identifiable {
     let id: String
-    let title: String
-    let description: String
-    let imageURL: String?
+    let name: String
     let type: MealType
-    let calories: Int
-    let prepTime: Int // in minutes
-    let servings: Int
     let ingredients: [String]
-    let instructions: [String]
-    let dietaryTags: [String]
+    let instructions: String
+    let nutritionInfo: String
     
-    init(id: String,
-         title: String,
-         description: String,
-         imageURL: String?,
-         type: MealType,
-         calories: Int,
-         prepTime: Int,
-         servings: Int,
-         ingredients: [String],
-         instructions: [String],
-         dietaryTags: [String]) {
-        self.id = id
-        self.title = title
-        self.description = description
-        self.imageURL = imageURL
-        self.type = type
-        self.calories = calories
-        self.prepTime = prepTime
-        self.servings = servings
-        self.ingredients = ingredients
-        self.instructions = instructions
-        self.dietaryTags = dietaryTags
+    enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case type
+        case ingredients
+        case instructions
+        case nutritionInfo = "nutrition_info"
     }
 }
 
-enum MealType: String, CaseIterable {
+enum MealType: String, Codable, CaseIterable {
     case breakfast = "Breakfast"
     case lunch = "Lunch"
     case dinner = "Dinner"

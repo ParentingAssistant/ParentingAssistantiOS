@@ -1,13 +1,13 @@
 import Foundation
 
-struct Task: Identifiable, Codable {
+struct ChoreTask: Identifiable, Codable {
     let id: String
     var title: String
     var description: String?
     var isCompleted: Bool
     var dueDate: Date?
     var assignedTo: String?
-    var category: TaskCategory
+    var category: ChoreCategory
     let createdAt: Date
     
     init(id: String = UUID().uuidString,
@@ -16,7 +16,7 @@ struct Task: Identifiable, Codable {
          isCompleted: Bool = false,
          dueDate: Date? = nil,
          assignedTo: String? = nil,
-         category: TaskCategory,
+         category: ChoreCategory,
          createdAt: Date = Date()) {
         self.id = id
         self.title = title
@@ -29,7 +29,7 @@ struct Task: Identifiable, Codable {
     }
 }
 
-enum TaskCategory: String, Codable, CaseIterable {
+enum ChoreCategory: String, Codable, CaseIterable {
     case cleaning = "Cleaning"
     case laundry = "Laundry"
     case kitchen = "Kitchen"

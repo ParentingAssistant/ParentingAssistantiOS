@@ -1,45 +1,38 @@
 import SwiftUI
 
-@MainActor
-class TaskService: ObservableObject {
-    static let shared = TaskService()
+class ChoreService: ObservableObject {
+    static let shared = ChoreService()
     
-    @Published var tasks: [Task] = []
-    @Published var isLoading = false
-    @Published var error: String?
+    @Published var chores: [ChoreTask] = []
     
     private init() {
-        // Initialize with sample tasks
-        tasks = [
-            Task(title: "Make the bed", category: .bedroom),
-            Task(title: "Empty dishwasher", category: .kitchen),
-            Task(title: "Do homework", category: .homework),
-            Task(title: "Feed pets", category: .other),
-            Task(title: "Clean bathroom", category: .bathroom)
+        // Initialize with sample chores
+        chores = [
+            ChoreTask(title: "Make the bed", category: .bedroom),
+            ChoreTask(title: "Empty dishwasher", category: .kitchen),
+            ChoreTask(title: "Do homework", category: .homework),
+            ChoreTask(title: "Feed pets", category: .other),
+            ChoreTask(title: "Clean bathroom", category: .bathroom)
         ]
     }
     
-    func addTask(_ task: Task) {
-        tasks.append(task)
-        // TODO: Sync with backend
+    func addChore(_ chore: ChoreTask) {
+        chores.append(chore)
     }
     
-    func toggleTask(_ task: Task) {
-        if let index = tasks.firstIndex(where: { $0.id == task.id }) {
-            tasks[index].isCompleted.toggle()
-            // TODO: Sync with backend
+    func toggleChore(_ chore: ChoreTask) {
+        if let index = chores.firstIndex(where: { $0.id == chore.id }) {
+            chores[index].isCompleted.toggle()
         }
     }
     
-    func deleteTask(_ task: Task) {
-        tasks.removeAll { $0.id == task.id }
-        // TODO: Sync with backend
+    func deleteChore(_ chore: ChoreTask) {
+        chores.removeAll { $0.id == chore.id }
     }
     
-    func updateTask(_ task: Task) {
-        if let index = tasks.firstIndex(where: { $0.id == task.id }) {
-            tasks[index] = task
-            // TODO: Sync with backend
+    func updateChore(_ chore: ChoreTask) {
+        if let index = chores.firstIndex(where: { $0.id == chore.id }) {
+            chores[index] = chore
         }
     }
 } 

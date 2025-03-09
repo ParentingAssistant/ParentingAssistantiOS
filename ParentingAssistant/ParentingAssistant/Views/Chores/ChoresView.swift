@@ -1,17 +1,20 @@
 import SwiftUI
 
+// Import the AddChoreView
+@_spi(AddChoreView) import ParentingAssistant
+
 struct ChoresView: View {
-    @StateObject private var taskService = TaskService.shared
-    @State private var showingAddTask = false
-    @State private var selectedCategory: TaskCategory = .other
-    
+    @StateObject private var choreService = ChoreService.shared
+    @State private var showingAddChore = false
+    @State private var selectedCategory: ChoreCategory = .other
+
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
                 // Categories
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 12) {
-                        ForEach(TaskCategory.allCases, id: \.self) { category in
+                        ForEach(ChoreCategory.allCases, id: \.self) { category in
                             CategoryButton(
                                 category: category,
                                 isSelected: category == selectedCategory
@@ -23,13 +26,13 @@ struct ChoresView: View {
                     .padding(.horizontal)
                 }
                 
-                // Tasks List
+                // Chores List
                 LazyVStack(spacing: 16) {
-                    ForEach(taskService.tasks.filter {
+                    ForEach(choreService.chores.filter {
                         selectedCategory == .other ? true : $0.category == selectedCategory
-                    }) { task in
-                        TaskRow(task: task) { task in
-                            taskService.toggleTask(task)
+                    }) { chore in
+                        ChoreRow(chore: chore) { chore in
+                            choreService.toggleChore(chore)
                         }
                     }
                 }
@@ -40,20 +43,22 @@ struct ChoresView: View {
         .navigationTitle("Household Chores")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: { showingAddTask = true }) {
+                Button {
+                    showingAddChore = true
+                } label: {
                     Image(systemName: "plus.circle.fill")
                         .font(.title3)
                 }
             }
         }
-        .sheet(isPresented: $showingAddTask) {
-            AddTaskView(category: selectedCategory)
+        .sheet(isPresented: $showingAddChore) {
+            AddChoreView(category: selectedCategory)
         }
     }
 }
 
 struct CategoryButton: View {
-    let category: TaskCategory
+    let category: ChoreCategory
     let isSelected: Bool
     let action: () -> Void
     
@@ -77,32 +82,32 @@ struct CategoryButton: View {
     }
 }
 
-struct TaskRow: View {
-    let task: Task
-    let onToggle: (Task) -> Void
-    
+struct ChoreRow: View {
+    let chore: ChoreTask
+    let onToggle: (ChoreTask) -> Void
+
     var body: some View {
         HStack(spacing: 16) {
             // Checkbox
-            Button(action: { onToggle(task) }) {
-                Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
+            Button(action: { onToggle(chore) }) {
+                Image(systemName: chore.isCompleted ? "checkmark.circle.fill" : "circle")
                     .font(.title2)
-                    .foregroundColor(task.isCompleted ? Color(hex: task.category.color) : .gray)
+                    .foregroundColor(chore.isCompleted ? Color(hex: chore.category.color) : .gray)
             }
             
-            // Task Details
+            // Chore Details
             VStack(alignment: .leading, spacing: 4) {
-                Text(task.title)
+                Text(chore.title)
                     .font(.headline)
-                    .strikethrough(task.isCompleted)
+                    .strikethrough(chore.isCompleted)
                 
-                if let description = task.description {
+                if let description = chore.description {
                     Text(description)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
                 
-                if let assignedTo = task.assignedTo {
+                if let assignedTo = chore.assignedTo {
                     Text("Assigned to: \(assignedTo)")
                         .font(.caption)
                         .foregroundColor(.secondary)
@@ -112,69 +117,14 @@ struct TaskRow: View {
             Spacer()
             
             // Category Icon
-            Image(systemName: task.category.icon)
-                .foregroundColor(Color(hex: task.category.color))
+            Image(systemName: chore.category.icon)
+                .foregroundColor(Color(hex: chore.category.color))
                 .font(.title3)
         }
         .padding()
         .background(Color(.systemBackground))
         .cornerRadius(12)
         .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
-    }
-}
-
-struct AddTaskView: View {
-    @Environment(\.dismiss) private var dismiss
-    @StateObject private var taskService = TaskService.shared
-    @State private var title = ""
-    @State private var description = ""
-    @State private var assignedTo = ""
-    @State private var category: TaskCategory
-    
-    init(category: TaskCategory) {
-        _category = State(initialValue: category)
-    }
-    
-    var body: some View {
-        NavigationView {
-            Form {
-                Section(header: Text("Task Details")) {
-                    TextField("Title", text: $title)
-                    TextField("Description (optional)", text: $description)
-                    TextField("Assign to (optional)", text: $assignedTo)
-                    
-                    Picker("Category", selection: $category) {
-                        ForEach(TaskCategory.allCases, id: \.self) { category in
-                            Label(category.rawValue, systemImage: category.icon)
-                                .tag(category)
-                        }
-                    }
-                }
-            }
-            .navigationTitle("Add Task")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Add") {
-                        let task = Task(
-                            title: title,
-                            description: description.isEmpty ? nil : description,
-                            assignedTo: assignedTo.isEmpty ? nil : assignedTo,
-                            category: category
-                        )
-                        taskService.addTask(task)
-                        dismiss()
-                    }
-                    .disabled(title.isEmpty)
-                }
-            }
-        }
     }
 }
 
