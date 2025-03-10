@@ -3,153 +3,204 @@ import SwiftUI
 struct HomeView: View {
     @StateObject private var authService = AuthenticationService.shared
     @State private var selectedTab = 0
+    @State private var hasNotifications = true
+    
+    private var greeting: String {
+        let hour = Calendar.current.component(.hour, from: Date())
+        switch hour {
+        case 0..<12: return "Good morning"
+        case 12..<17: return "Good afternoon"
+        default: return "Good evening"
+        }
+    }
     
     var body: some View {
         TabView(selection: $selectedTab) {
-            // Home Tab
             NavigationStack {
                 ScrollView {
                     VStack(spacing: 24) {
-                        // Welcome Section
+                        // Top Navigation
                         HStack {
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("Welcome back")
+                                Text(greeting)
                                     .font(.title2)
                                     .foregroundColor(.secondary)
-                                Text(authService.currentUser?.fullName ?? "Parent")
+                                Text(authService.currentUser?.fullName ?? "")
                                     .font(.title)
                                     .fontWeight(.bold)
                             }
                             Spacer()
+                            
+                            Button(action: { /* Handle notifications */ }) {
+                                ZStack(alignment: .topTrailing) {
+                                    Image(systemName: "bell.fill")
+                                        .font(.title2)
+                                        .foregroundColor(.primary)
+                                    
+                                    if hasNotifications {
+                                        Circle()
+                                            .fill(Color.red)
+                                            .frame(width: 8, height: 8)
+                                            .offset(x: 2, y: -2)
+                                    }
+                                }
+                            }
                         }
                         .padding(.horizontal)
                         
-                        // Features Grid
-                        LazyVGrid(
-                            columns: [
-                                GridItem(.flexible(), spacing: 16),
-                                GridItem(.flexible(), spacing: 16)
-                            ],
-                            spacing: 16
-                        ) {
-                            NavigationLink(destination: MealPlanningView()) {
-                                FeatureCard(
-                                    icon: "fork.knife",
-                                    title: "Meal Prep",
-                                    subtitle: "Plan meals & groceries"
-                                )
-                            }
+                        // Daily Overview Section
+                        VStack(spacing: 16) {
+                            Text("Today's Overview")
+                                .font(.headline)
+                                .frame(maxWidth: .infinity, alignment: .leading)
                             
-                            NavigationLink(destination: BedtimeStoryView()) {
-                                FeatureCard(
+                            DailyOverviewCard(
+                                icon: "fork.knife",
+                                title: "Dinner",
+                                description: "Chicken and vegetable stir fry",
+                                time: "6:30 PM"
+                            )
+                            
+                            DailyOverviewCard(
+                                icon: "gift",
+                                title: "Activity",
+                                description: "Make a birthday card for uncle Tim",
+                                time: "2:00 PM"
+                            )
+                            
+                            DailyOverviewCard(
+                                icon: "bell",
+                                title: "Reminder",
+                                description: "Don't forget to pack lunch for tomorrow",
+                                time: "Evening"
+                            )
+                        }
+                        .padding()
+                        .background(Color(.systemBackground))
+                        .cornerRadius(16)
+                        .shadow(color: Color.black.opacity(0.05), radius: 10)
+                        .padding(.horizontal)
+                        
+                        // Feature Grid Section
+                        VStack(spacing: 16) {
+                            Text("What would you like to do?")
+                                .font(.headline)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.horizontal)
+                            
+                            LazyVGrid(
+                                columns: [
+                                    GridItem(.flexible(), spacing: 16),
+                                    GridItem(.flexible(), spacing: 16)
+                                ],
+                                spacing: 16
+                            ) {
+                                FeatureGridItem(
+                                    icon: "fork.knife",
+                                    title: "Meal Plans",
+                                    color: .blue,
+                                    destination: AnyView(MealPlanningView())
+                                )
+                                
+                                FeatureGridItem(
                                     icon: "book.fill",
                                     title: "Bedtime Stories",
-                                    subtitle: "Read stories to your kids"
+                                    color: .purple,
+                                    destination: AnyView(BedtimeStoryView())
                                 )
-                            }
-                            
-                            NavigationLink(destination: KidsRoutinesView()) {
-                                FeatureCard(
+                                
+                                FeatureGridItem(
                                     icon: "checklist.checked",
                                     title: "Kids' Routines",
-                                    subtitle: "Manage daily tasks",
+                                    color: .mint,
+                                    destination: AnyView(KidsRoutinesView()),
                                     isBeta: true
                                 )
-                            }
-                            
-                            NavigationLink(destination: HouseholdChoresView()) {
-                                FeatureCard(
+                                
+                                FeatureGridItem(
                                     icon: "house.fill",
                                     title: "Household Chores",
-                                    subtitle: "Manage family tasks",
+                                    color: .brown,
+                                    destination: AnyView(HouseholdChoresView()),
                                     isBeta: true
                                 )
-                            }
-                            
-                            NavigationLink(destination: KidsActivitiesView()) {
-                                FeatureCard(
+                                
+                                FeatureGridItem(
                                     icon: "figure.2.and.child.holdinghands",
                                     title: "Kids' Activities",
-                                    subtitle: "Fun & educational activities",
+                                    color: .green,
+                                    destination: AnyView(KidsActivitiesView()),
                                     isBeta: true
                                 )
-                            }
-                            
-                            NavigationLink(destination: RunningErrandsView()) {
-                                FeatureCard(
+                                
+                                FeatureGridItem(
                                     icon: "cart.fill",
                                     title: "Running Errands",
-                                    subtitle: "Smart shopping & scheduling",
+                                    color: .red,
+                                    destination: AnyView(RunningErrandsView()),
                                     isBeta: true
                                 )
-                            }
-                            
-                            NavigationLink(destination: EmotionalNeedsView()) {
-                                FeatureCard(
+                                
+                                FeatureGridItem(
                                     icon: "heart.text.square.fill",
                                     title: "Emotional Support",
-                                    subtitle: "Help kids manage emotions",
+                                    color: .pink,
+                                    destination: AnyView(EmotionalNeedsView()),
                                     isBeta: true
                                 )
-                            }
-                            
-                            NavigationLink(destination: HealthTrackingView()) {
-                                FeatureCard(
+                                
+                                FeatureGridItem(
                                     icon: "chart.bar.fill",
                                     title: "Health & Growth",
-                                    subtitle: "Track development & health",
+                                    color: .teal,
+                                    destination: AnyView(HealthTrackingView()),
                                     isBeta: true
                                 )
-                            }
-                            
-                            NavigationLink(destination: FamilySchedulerView()) {
-                                FeatureCard(
+                                
+                                FeatureGridItem(
                                     icon: "calendar.badge.clock",
                                     title: "Family Scheduler",
-                                    subtitle: "Organize events & tasks",
+                                    color: .indigo,
+                                    destination: AnyView(FamilySchedulerView()),
                                     isBeta: true
                                 )
-                            }
-                            
-                            NavigationLink(destination: WorkLifeBalanceView()) {
-                                FeatureCard(
+                                
+                                FeatureGridItem(
                                     icon: "figure.mind.and.body",
                                     title: "Work-Life Balance",
-                                    subtitle: "Focus & self-care tools",
+                                    color: .cyan,
+                                    destination: AnyView(WorkLifeBalanceView()),
                                     isBeta: true
                                 )
-                            }
-                            
-                            NavigationLink(destination: SleepStrugglesView()) {
-                                FeatureCard(
+                                
+                                FeatureGridItem(
                                     icon: "moon.stars.fill",
                                     title: "Sleep Support",
-                                    subtitle: "Track & improve sleep",
+                                    color: .purple,
+                                    destination: AnyView(SleepStrugglesView()),
                                     isBeta: true
                                 )
-                            }
-                            
-                            NavigationLink(destination: TravelPrepView()) {
-                                FeatureCard(
+                                
+                                FeatureGridItem(
                                     icon: "airplane.circle.fill",
                                     title: "Travel Prep",
-                                    subtitle: "Plan trips & outings",
+                                    color: .orange,
+                                    destination: AnyView(TravelPrepView()),
                                     isBeta: true
                                 )
                             }
+                            .padding(.horizontal)
                         }
-                        .padding(.horizontal)
                     }
                     .padding(.vertical)
                 }
-                .navigationTitle("Home")
+                .background(Color(.systemGroupedBackground))
             }
             .tabItem {
                 Label("Home", systemImage: "house.fill")
             }
             .tag(0)
             
-            // Search Tab
             NavigationStack {
                 SearchView()
             }
@@ -158,7 +209,6 @@ struct HomeView: View {
             }
             .tag(1)
             
-            // Marketplace Tab
             NavigationStack {
                 MarketplaceView()
             }
@@ -167,7 +217,6 @@ struct HomeView: View {
             }
             .tag(2)
             
-            // Profile Tab
             NavigationStack {
                 ProfileView()
             }
@@ -179,55 +228,88 @@ struct HomeView: View {
     }
 }
 
-struct FeatureCard: View {
+struct DailyOverviewCard: View {
     let icon: String
     let title: String
-    let subtitle: String
-    var isBeta: Bool = false
+    let description: String
+    let time: String
     
     var body: some View {
-        ZStack(alignment: .topTrailing) {
-            VStack(alignment: .leading, spacing: 12) {
-                Image(systemName: icon)
-                    .font(.title)
-                    .foregroundColor(.blue)
-                    .frame(width: 40, height: 40)
-                    .background(Color.blue.opacity(0.1))
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(title)
-                        .font(.headline)
-                        .lineLimit(2)
-                    Text(subtitle)
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                        .lineLimit(2)
-                }
-                Spacer()
-            }
-            .frame(maxWidth: .infinity, minHeight: 140, alignment: .leading)
-            .padding()
+        HStack(spacing: 16) {
+            Image(systemName: icon)
+                .font(.title2)
+                .foregroundColor(.white)
+                .frame(width: 40, height: 40)
+                .background(Color.blue)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
             
-            if isBeta {
-                Text("BETA")
-                    .font(.caption2)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(Color.orange)
-                    .cornerRadius(4)
-                    .padding(8)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.headline)
+                Text(description)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
             }
+            
+            Spacer()
+            
+            Text(time)
+                .font(.caption)
+                .foregroundColor(.secondary)
         }
-        .background(Color(.systemBackground))
-        .cornerRadius(16)
-        .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
+        .padding()
+        .background(Color(.secondarySystemGroupedBackground))
+        .cornerRadius(12)
     }
 }
 
-struct HomeView_Previews: PreviewProvider {
+struct FeatureGridItem: View {
+    let icon: String
+    let title: String
+    let color: Color
+    let destination: AnyView
+    var isBeta: Bool = false
+    
+    var body: some View {
+        NavigationLink(destination: destination) {
+            ZStack(alignment: .topTrailing) {
+                VStack(spacing: 16) {
+                    Image(systemName: icon)
+                        .font(.title)
+                        .foregroundColor(.white)
+                        .frame(width: 50, height: 50)
+                        .background(color)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    
+                    Text(title)
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundColor(.primary)
+                        .multilineTextAlignment(.center)
+                        .lineLimit(2)
+                }
+                .frame(maxWidth: .infinity)
+                .padding()
+                
+                if isBeta {
+                    Text("BETA")
+                        .font(.caption2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.orange)
+                        .cornerRadius(4)
+                        .padding(8)
+                }
+            }
+            .background(Color(.systemBackground))
+            .cornerRadius(16)
+        }
+    }
+}
+
+struct HomeView2_Previews: PreviewProvider {
     static var previews: some View {
         HomeView()
     }
