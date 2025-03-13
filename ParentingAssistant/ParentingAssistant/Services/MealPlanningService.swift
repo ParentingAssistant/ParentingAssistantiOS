@@ -81,9 +81,9 @@ class MealPlanningService: ObservableObject {
         error = nil
         
         do {
-            // 1. Generate meal plan with OpenAI
-            print("🤖 Calling OpenAI API to generate meal plan...")
-            let prompt = """
+            // 1. Create a prompt for meal planning
+            print("🤖 Creating meal planning prompt...")
+            let promptContent = """
             Generate a healthy meal plan for one day including:
             - Breakfast (healthy and energizing)
             - Morning Snack (light and nutritious)
@@ -98,58 +98,37 @@ class MealPlanningService: ObservableObject {
             - Complete nutrition info (calories, protein, carbs, fats, fiber)
             
             Make meals practical, healthy, and family-friendly.
-            """
             
-            // TODO: Replace with actual OpenAI API call
-            print("⚠️ Using mock OpenAI response for now")
-            let mockResponse = """
+            IMPORTANT: Format your response as a JSON object with the following structure:
             {
-              "meals": [
-                {
-                  "type": "breakfast",
-                  "name": "Greek Yogurt Power Bowl",
-                  "ingredients": ["1 cup Greek yogurt", "1/2 cup mixed berries", "1/4 cup granola", "1 tbsp honey", "1 tbsp chia seeds"],
-                  "instructions": "1. Add yogurt to bowl\\n2. Top with berries\\n3. Sprinkle granola and chia seeds\\n4. Drizzle with honey",
-                  "nutrition_info": "Calories: 350, Protein: 20g, Carbs: 45g, Fat: 12g, Fiber: 6g"
-                },
-                {
-                  "type": "snack",
-                  "name": "Apple and Almond Energy Bites",
-                  "ingredients": ["1 medium apple", "2 tbsp almond butter", "1 tbsp rolled oats"],
-                  "instructions": "1. Slice apple into wedges\\n2. Spread almond butter\\n3. Sprinkle with oats",
-                  "nutrition_info": "Calories: 200, Protein: 6g, Carbs: 25g, Fat: 10g, Fiber: 4g"
-                },
-                {
-                  "type": "lunch",
-                  "name": "Rainbow Quinoa Buddha Bowl",
-                  "ingredients": ["1 cup cooked quinoa", "1 cup roasted chickpeas", "1 cup mixed vegetables", "1/2 avocado", "2 tbsp tahini dressing"],
-                  "instructions": "1. Place quinoa as base\\n2. Arrange vegetables and chickpeas\\n3. Add sliced avocado\\n4. Drizzle with dressing",
-                  "nutrition_info": "Calories: 450, Protein: 15g, Carbs: 55g, Fat: 20g, Fiber: 12g"
-                },
-                {
-                  "type": "snack",
-                  "name": "Trail Mix Power Pack",
-                  "ingredients": ["1/4 cup mixed nuts", "2 tbsp dried cranberries", "1 tbsp dark chocolate chips"],
-                  "instructions": "Mix all ingredients in a small container",
-                  "nutrition_info": "Calories: 180, Protein: 5g, Carbs: 15g, Fat: 12g, Fiber: 3g"
-                },
-                {
-                  "type": "dinner",
-                  "name": "Herb-Crusted Baked Salmon with Roasted Vegetables",
-                  "ingredients": ["6 oz salmon fillet", "2 cups mixed vegetables", "2 tbsp olive oil", "1 tbsp herbs de provence", "1 lemon"],
-                  "instructions": "1. Preheat oven to 400°F\\n2. Season salmon with herbs\\n3. Toss vegetables with oil\\n4. Bake for 20 minutes\\n5. Serve with lemon wedges",
-                  "nutrition_info": "Calories: 420, Protein: 35g, Carbs: 25g, Fat: 22g, Fiber: 6g"
-                }
-              ]
+                "meals": [
+                    {
+                        "name": "Meal Name",
+                        "type": "Breakfast|Lunch|Dinner|Snack",
+                        "ingredients": ["ingredient 1", "ingredient 2", ...],
+                        "instructions": "Step-by-step instructions",
+                        "nutrition_info": "Nutrition information"
+                    },
+                    ...
+                ]
             }
             """
             
-            // 2. Parse the response
+            let prompt = try await PromptService.shared.createPrompt(
+                category: .mealPlanning,
+                content: promptContent
+            )
+            
+            // 2. Generate response using OpenAI
+            print("🤖 Generating meal plan with OpenAI...")
+            let response = try await OpenAIService.shared.generateResponse(for: prompt)
+            
+            // 3. Parse the response into meals
             print("🔄 Parsing OpenAI response...")
-            let meals = try parseMealsFromAIResponse(mockResponse)
+            let meals = try parseMealsFromAIResponse(response.content)
             print("✅ Successfully parsed \(meals.count) meals from response")
             
-            // 3. Save to Firestore
+            // 4. Save to Firestore
             print("💾 Saving meals to Firestore...")
             for meal in meals {
                 do {
@@ -167,7 +146,7 @@ class MealPlanningService: ObservableObject {
                 }
             }
             
-            // 4. Reload meals
+            // 5. Reload meals
             print("🔄 Reloading meals after generation...")
             await loadMeals(for: date)
             
@@ -181,8 +160,18 @@ class MealPlanningService: ObservableObject {
     
     private func parseMealsFromAIResponse(_ response: String) throws -> [Meal] {
         print("🔍 Parsing AI response: \(response)")
-        // TODO: Implement actual parsing logic
-        guard let data = response.data(using: .utf8),
+        
+        // Try to find JSON content between triple backticks if present
+        let jsonString: String
+        if let jsonMatch = response.range(of: "```json\n(.*?)\n```", options: [.regularExpression]) {
+            jsonString = String(response[jsonMatch])
+                .replacingOccurrences(of: "```json\n", with: "")
+                .replacingOccurrences(of: "\n```", with: "")
+        } else {
+            jsonString = response
+        }
+        
+        guard let data = jsonString.data(using: .utf8),
               let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let mealsArray = json["meals"] as? [[String: Any]] else {
             print("❌ Failed to parse JSON response")

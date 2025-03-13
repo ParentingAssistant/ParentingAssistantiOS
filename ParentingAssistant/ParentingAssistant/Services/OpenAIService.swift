@@ -1,114 +1,121 @@
 import Foundation
 
-enum OpenAIError: Error {
-    case invalidResponse
-    case apiError(String)
-    case decodingError
-}
-
-class OpenAIService {
+class OpenAIService: ObservableObject {
     static let shared = OpenAIService()
-    private let baseURL = "https://api.openai.com/v1"
-    private var apiKey: String {
-        // In production, this should be stored in KeyChain or environment variables
-        // For now, we'll use a property list
-        guard let path = Bundle.main.path(forResource: "Config", ofType: "plist"),
-              let config = NSDictionary(contentsOfFile: path),
-              let key = config["OpenAIKey"] as? String else {
-            fatalError("OpenAI API key not found in Config.plist")
-        }
-        return key
-    }
+    private let promptService = PromptService.shared
+    
+    @Published var isLoading = false
+    @Published var error: Error?
     
     private init() {}
     
-    func generateStory(
-        prompt: String,
-        ageGroup: String,
-        theme: String,
-        completion: @escaping (Result<String, OpenAIError>) -> Void
-    ) {
-        let storyPrompt = """
-        Create a bedtime story for a \(ageGroup) child with the theme: \(theme).
-        Story requirements:
-        - Age-appropriate language and content
-        - Engaging characters and plot
-        - Educational or moral message
-        - Length: about 5-7 paragraphs
-        - End with a gentle, sleep-inducing conclusion
-        
-        Additional context: \(prompt)
-        """
-        
-        let parameters: [String: Any] = [
-            "model": "gpt-4-turbo-preview",
-            "messages": [
-                ["role": "system", "content": "You are a skilled children's storyteller who creates engaging, age-appropriate bedtime stories."],
-                ["role": "user", "content": storyPrompt]
-            ],
-            "temperature": 0.7,
-            "max_tokens": 1000
-        ]
-        
-        guard let url = URL(string: "\(baseURL)/chat/completions") else {
-            completion(.failure(.invalidResponse))
-            return
-        }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+    func generateResponse(for prompt: Prompt) async throws -> PromptResponse {
+        print("🤖 Starting OpenAI API request...")
+        isLoading = true
+        defer { isLoading = false }
         
         do {
-            request.httpBody = try JSONSerialization.data(withJSONObject: parameters)
-        } catch {
-            completion(.failure(.apiError("Failed to encode request")))
-            return
-        }
-        
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            if let error = error {
-                print("API Error: \(error.localizedDescription)")
-                completion(.failure(.apiError(error.localizedDescription)))
-                return
+            // Get API key
+            print("   🔑 Getting API key...")
+            let apiKey = try ConfigurationManager.shared.openAIKey
+            print("   ✅ API key retrieved successfully")
+            
+            // Prepare the request
+            print("   📝 Preparing request...")
+            let url = URL(string: "https://api.openai.com/v1/chat/completions")!
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            
+            // Prepare the request body
+            let requestBody: [String: Any] = [
+                "model": "gpt-4",
+                "messages": [
+                    ["role": "system", "content": "You are a helpful parenting assistant."],
+                    ["role": "user", "content": prompt.content]
+                ],
+                "temperature": 0.7,
+                "max_tokens": 1000
+            ]
+            
+            request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
+            print("   ✅ Request body prepared")
+            
+            // Make the request
+            print("   🌐 Making API request...")
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                print("   ❌ Invalid response type")
+                throw OpenAIError.invalidResponse
             }
             
-            guard let data = data else {
-                print("Invalid Response: No data received")
-                completion(.failure(.invalidResponse))
-                return
-            }
+            print("   📥 Received response with status code: \(httpResponse.statusCode)")
             
-            // Debugging: Print raw API response
-            if let responseString = String(data: data, encoding: .utf8) {
-                print("API Response: \(responseString)")
-            }
-            
-            do {
-                let result = try JSONDecoder().decode(OpenAIResponse.self, from: data)
-                if let content = result.choices.first?.message.content {
-                    completion(.success(content))
-                } else {
-                    completion(.failure(.invalidResponse))
+            if httpResponse.statusCode != 200 {
+                if let errorJson = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                    print("   ❌ API Error: \(errorJson)")
                 }
-            } catch {
-                print("Decoding Error: \(error.localizedDescription)")
-                completion(.failure(.decodingError))
+                throw OpenAIError.invalidResponse
             }
-        }.resume()
+            
+            // Parse the response
+            print("   🔄 Parsing response...")
+            let decoder = JSONDecoder()
+            let result = try decoder.decode(OpenAIResponse.self, from: data)
+            
+            guard let content = result.choices.first?.message.content else {
+                print("   ❌ No content in response")
+                throw OpenAIError.noContent
+            }
+            
+            print("   ✅ Successfully parsed response")
+            
+            // Create and store the response
+            let promptResponse = PromptResponse(
+                promptId: prompt.id ?? UUID().uuidString,
+                content: content,
+                metadata: ["model": "gpt-4"]
+            )
+            
+            try await promptService.addResponse(to: prompt.id ?? UUID().uuidString, content: content)
+            print("   ✅ Response stored successfully")
+            
+            return promptResponse
+            
+        } catch {
+            print("   ❌ Error during OpenAI API call: \(error.localizedDescription)")
+            self.error = error
+            throw error
+        }
     }
 }
 
-// Response models
+// MARK: - Supporting Types
+
+enum OpenAIError: Error {
+    case invalidResponse
+    case noContent
+    
+    var localizedDescription: String {
+        switch self {
+        case .invalidResponse:
+            return "Invalid response from OpenAI API"
+        case .noContent:
+            return "No content in OpenAI API response"
+        }
+    }
+}
+
 struct OpenAIResponse: Codable {
     let choices: [Choice]
-}
-
-struct Choice: Codable {
-    let message: Message
-}
-
-struct Message: Codable {
-    let content: String
+    
+    struct Choice: Codable {
+        let message: Message
+    }
+    
+    struct Message: Codable {
+        let content: String
+    }
 } 

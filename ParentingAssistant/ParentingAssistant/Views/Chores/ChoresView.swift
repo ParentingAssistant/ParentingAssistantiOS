@@ -1,8 +1,5 @@
 import SwiftUI
 
-// Import the AddChoreView
-@_spi(AddChoreView) import ParentingAssistant
-
 struct ChoresView: View {
     @StateObject private var choreService = ChoreService.shared
     @State private var showingAddChore = false
