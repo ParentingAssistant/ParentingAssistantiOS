@@ -15,15 +15,13 @@ DerivedData/
 *.perspectivev3
 !default.perspectivev3
 
-# Sensitive Configuration
-Config.xcconfig
-**/Secrets.plist
-**/GoogleService-Info.plist
-**/GoogleService-Info-*.plist
-
 # CocoaPods
 Pods/
 Podfile.lock
+
+# Sensitive Configuration
+Config.xcconfig
+GoogleService-Info.plist
 
 # Carthage
 Carthage/Build/
