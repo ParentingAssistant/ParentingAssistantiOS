@@ -1,8 +1,8 @@
 # ParentingAssistant
 
 A comprehensive iOS app designed to help parents manage their daily responsibilities and create meaningful moments with their children.
+![appstore](https://github.com/user-attachments/assets/2c320783-533c-40fa-83c0-3ff49602efb5)
 
-![ParentingAssistant](Assets.xcassets/meal_bedtime.imageset/meal_bedtime.png)
 
 ## Features
 
