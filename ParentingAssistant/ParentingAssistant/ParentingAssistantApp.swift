@@ -16,8 +16,7 @@ struct ParentingAssistantApp: App {
     
     var body: some Scene {
         WindowGroup {
-            RootView()
-                .preferredColorScheme(.light)
+            SplashScreenView()
         }
     }
 }

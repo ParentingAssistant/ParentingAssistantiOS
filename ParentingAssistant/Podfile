@@ -1,0 +1,21 @@
+platform :ios, '15.0'
+
+target 'ParentingAssistant' do
+  use_frameworks!
+
+  # Firebase
+  pod 'Firebase/Core'
+  pod 'Firebase/Auth'
+  pod 'Firebase/Firestore'
+  pod 'Firebase/Messaging'
+  pod 'Firebase/Analytics'
+
+end
+
+target 'ParentingAssistantTests' do
+  use_frameworks!
+end
+
+target 'ParentingAssistantUITests' do
+  use_frameworks!
+end 
