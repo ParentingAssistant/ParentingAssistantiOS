@@ -166,21 +166,39 @@ struct BedtimeStoryView: View {
         errorMessage = nil
         
         let ageGroup = storyService.getAgeGroup(for: selectedChild)
+        let promptContent = """
+        Create a bedtime story for a \(ageGroup) child with the theme: \(selectedTheme).
+        Story requirements:
+        - Age-appropriate language and content
+        - Engaging characters and plot
+        - Educational or moral message
+        - Length: about 5-7 paragraphs
+        - End with a gentle, sleep-inducing conclusion
         
-        OpenAIService.shared.generateStory(
-            prompt: customPrompt,
-            ageGroup: ageGroup,
-            theme: selectedTheme
-        ) { result in
-            DispatchQueue.main.async {
-                isGenerating = false
+        Additional context: \(customPrompt)
+        """
+        
+        Task {
+            do {
+                // Create a new prompt
+                let prompt = try await PromptService.shared.createPrompt(
+                    category: .bedtimeStory,
+                    content: promptContent
+                )
                 
-                switch result {
-                case .success(let story):
-                    generatedStory = story
-                case .failure(let error):
+                // Generate response
+                let response = try await OpenAIService.shared.generateResponse(for: prompt)
+                
+                // Update UI on main thread
+                await MainActor.run {
+                    generatedStory = response.content
+                    isGenerating = false
+                }
+            } catch {
+                await MainActor.run {
                     errorMessage = error.localizedDescription
                     showingError = true
+                    isGenerating = false
                 }
             }
         }
