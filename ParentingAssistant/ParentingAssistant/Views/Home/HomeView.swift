@@ -2,8 +2,9 @@ import SwiftUI
 
 struct HomeView: View {
     @StateObject private var authService = AuthenticationService.shared
+    @StateObject private var notificationService = NotificationService.shared
     @State private var selectedTab = 0
-    @State private var hasNotifications = true
+    @State private var showingNotifications = false
     
     private var greeting: String {
         let hour = Calendar.current.component(.hour, from: Date())
@@ -25,22 +26,28 @@ struct HomeView: View {
                                 Text(greeting)
                                     .font(.title2)
                                     .foregroundColor(.secondary)
-                                Text(authService.currentUser?.fullName ?? "")
+                                Text(authService.currentUser?.fullName ?? "Parent")
                                     .font(.title)
                                     .fontWeight(.bold)
+                                    .redacted(reason: authService.currentUser == nil ? .placeholder : [])
+                                    .frame(height: 32)
                             }
                             Spacer()
                             
-                            Button(action: { /* Handle notifications */ }) {
+                            Button(action: { showingNotifications = true }) {
                                 ZStack(alignment: .topTrailing) {
                                     Image(systemName: "bell.fill")
                                         .font(.title2)
                                         .foregroundColor(.primary)
                                     
-                                    if hasNotifications {
-                                        Circle()
-                                            .fill(Color.red)
-                                            .frame(width: 8, height: 8)
+                                    if notificationService.unreadCount > 0 {
+                                        Text("\(notificationService.unreadCount)")
+                                            .font(.caption2)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.white)
+                                            .frame(width: 18, height: 18)
+                                            .background(Color.red)
+                                            .clipShape(Circle())
                                             .offset(x: 2, y: -2)
                                     }
                                 }
@@ -195,6 +202,9 @@ struct HomeView: View {
                     .padding(.vertical)
                 }
                 .background(Color(.systemGroupedBackground))
+            }
+            .sheet(isPresented: $showingNotifications) {
+                NotificationsView()
             }
             .tabItem {
                 Label("Home", systemImage: "house.fill")
