@@ -1,6 +1,6 @@
 # 🤖 AI Parenting Assistant - Smart AI for Parents
 
-![AI Parenting Assistant](./assets/app_screenshot.png)  
+![128](https://github.com/user-attachments/assets/e74ee517-2760-49cf-9003-65e7781ea20d)
 _A revolutionary AI-powered assistant designed to simplify parenting, reduce decision fatigue, and optimize daily family routines._
 
 ## 📌 Overview
