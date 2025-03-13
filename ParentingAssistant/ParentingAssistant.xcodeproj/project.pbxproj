@@ -10,6 +10,7 @@
 		FAA887462D7AC5A700639E34 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = FAA887452D7AC5A700639E34 /* FirebaseAnalytics */; };
 		FAA887482D7AC5A700639E34 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = FAA887472D7AC5A700639E34 /* FirebaseAuth */; };
 		FAA8874A2D7AC5A700639E34 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = FAA887492D7AC5A700639E34 /* FirebaseFirestore */; };
+		FAFADF2D2D833C740042C3B4 /* Config.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = FAFADF2C2D833C740042C3B4 /* Config.xcconfig */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -33,11 +34,25 @@
 		FA0D6E3D2D7A24AF00AF0365 /* ParentingAssistant.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ParentingAssistant.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FA0D6E4E2D7A24B000AF0365 /* ParentingAssistantTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ParentingAssistantTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		FA0D6E582D7A24B000AF0365 /* ParentingAssistantUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ParentingAssistantUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		FAFADF2C2D833C740042C3B4 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		FAFADF2B2D833AC60042C3B4 /* Exceptions for "ParentingAssistant" folder in "ParentingAssistant" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = FA0D6E3C2D7A24AF00AF0365 /* ParentingAssistant */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		FA0D6E3F2D7A24AF00AF0365 /* ParentingAssistant */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				FAFADF2B2D833AC60042C3B4 /* Exceptions for "ParentingAssistant" folder in "ParentingAssistant" target */,
+			);
 			path = ParentingAssistant;
 			sourceTree = "<group>";
 		};
@@ -84,6 +99,7 @@
 		FA0D6E342D7A24AF00AF0365 = {
 			isa = PBXGroup;
 			children = (
+				FAFADF2C2D833C740042C3B4 /* Config.xcconfig */,
 				FA0D6E3F2D7A24AF00AF0365 /* ParentingAssistant */,
 				FA0D6E512D7A24B000AF0365 /* ParentingAssistantTests */,
 				FA0D6E5B2D7A24B000AF0365 /* ParentingAssistantUITests */,
@@ -235,6 +251,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FAFADF2D2D833C740042C3B4 /* Config.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -294,6 +311,7 @@
 /* Begin XCBuildConfiguration section */
 		FA0D6E602D7A24B000AF0365 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = FAFADF2C2D833C740042C3B4 /* Config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -355,6 +373,7 @@
 		};
 		FA0D6E612D7A24B000AF0365 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = FAFADF2C2D833C740042C3B4 /* Config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -408,6 +427,7 @@
 		};
 		FA0D6E632D7A24B000AF0365 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = FAFADF2C2D833C740042C3B4 /* Config.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -447,6 +467,7 @@
 		};
 		FA0D6E642D7A24B000AF0365 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = FAFADF2C2D833C740042C3B4 /* Config.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
