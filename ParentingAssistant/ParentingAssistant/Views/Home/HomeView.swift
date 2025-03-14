@@ -106,14 +106,16 @@ struct HomeView: View {
                                     icon: "fork.knife",
                                     title: "Meal Plans",
                                     color: .blue,
-                                    destination: AnyView(MealPlanningView())
+                                    destination: AnyView(MealPlanningView()),
+                                    isBeta: true
                                 )
                                 
                                 FeatureGridItem(
                                     icon: "book.fill",
                                     title: "Bedtime Stories",
                                     color: .purple,
-                                    destination: AnyView(BedtimeStoryView())
+                                    destination: AnyView(BedtimeStoryView()),
+                                    isBeta: true
                                 )
                                 
                                 FeatureGridItem(
@@ -121,7 +123,7 @@ struct HomeView: View {
                                     title: "Kids' Routines",
                                     color: .mint,
                                     destination: AnyView(KidsRoutinesView()),
-                                    isBeta: true
+                                    isSoon: true
                                 )
                                 
                                 FeatureGridItem(
@@ -129,7 +131,7 @@ struct HomeView: View {
                                     title: "Household Chores",
                                     color: .brown,
                                     destination: AnyView(HouseholdChoresView()),
-                                    isBeta: true
+                                    isSoon: true
                                 )
                                 
                                 FeatureGridItem(
@@ -137,7 +139,7 @@ struct HomeView: View {
                                     title: "Kids' Activities",
                                     color: .green,
                                     destination: AnyView(KidsActivitiesView()),
-                                    isBeta: true
+                                    isSoon: true
                                 )
                                 
                                 FeatureGridItem(
@@ -145,7 +147,7 @@ struct HomeView: View {
                                     title: "Running Errands",
                                     color: .red,
                                     destination: AnyView(RunningErrandsView()),
-                                    isBeta: true
+                                    isSoon: true
                                 )
                                 
                                 FeatureGridItem(
@@ -153,7 +155,7 @@ struct HomeView: View {
                                     title: "Emotional Support",
                                     color: .pink,
                                     destination: AnyView(EmotionalNeedsView()),
-                                    isBeta: true
+                                    isSoon: true
                                 )
                                 
                                 FeatureGridItem(
@@ -161,7 +163,7 @@ struct HomeView: View {
                                     title: "Health & Growth",
                                     color: .teal,
                                     destination: AnyView(HealthTrackingView()),
-                                    isBeta: true
+                                    isSoon: true
                                 )
                                 
                                 FeatureGridItem(
@@ -169,7 +171,7 @@ struct HomeView: View {
                                     title: "Family Scheduler",
                                     color: .indigo,
                                     destination: AnyView(FamilySchedulerView()),
-                                    isBeta: true
+                                    isSoon: true
                                 )
                                 
                                 FeatureGridItem(
@@ -177,7 +179,7 @@ struct HomeView: View {
                                     title: "Work-Life Balance",
                                     color: .cyan,
                                     destination: AnyView(WorkLifeBalanceView()),
-                                    isBeta: true
+                                    isSoon: true
                                 )
                                 
                                 FeatureGridItem(
@@ -185,7 +187,7 @@ struct HomeView: View {
                                     title: "Sleep Support",
                                     color: .purple,
                                     destination: AnyView(SleepStrugglesView()),
-                                    isBeta: true
+                                    isSoon: true
                                 )
                                 
                                 FeatureGridItem(
@@ -193,7 +195,7 @@ struct HomeView: View {
                                     title: "Travel Prep",
                                     color: .orange,
                                     destination: AnyView(TravelPrepView()),
-                                    isBeta: true
+                                    isSoon: true
                                 )
                             }
                             .padding(.horizontal)
@@ -279,6 +281,7 @@ struct FeatureGridItem: View {
     let color: Color
     let destination: AnyView
     var isBeta: Bool = false
+    var isSoon: Bool = false
     
     var body: some View {
         NavigationLink(destination: destination) {
@@ -303,6 +306,16 @@ struct FeatureGridItem: View {
                 
                 if isBeta {
                     Text("BETA")
+                        .font(.caption2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.green)
+                        .cornerRadius(4)
+                        .padding(8)
+                } else if isSoon {
+                    Text("SOON")
                         .font(.caption2)
                         .fontWeight(.bold)
                         .foregroundColor(.white)
