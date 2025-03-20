@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FA7706852D8C8433007C0351 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = FA7706842D8C8433007C0351 /* FirebaseCrashlytics */; };
 		FAA887462D7AC5A700639E34 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = FAA887452D7AC5A700639E34 /* FirebaseAnalytics */; };
 		FAA887482D7AC5A700639E34 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = FAA887472D7AC5A700639E34 /* FirebaseAuth */; };
 		FAA8874A2D7AC5A700639E34 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = FAA887492D7AC5A700639E34 /* FirebaseFirestore */; };
@@ -76,6 +77,7 @@
 			files = (
 				FAFAE0442D834D1B0042C3B4 /* FirebaseMessaging in Frameworks */,
 				FAA887462D7AC5A700639E34 /* FirebaseAnalytics in Frameworks */,
+				FA7706852D8C8433007C0351 /* FirebaseCrashlytics in Frameworks */,
 				FAA887482D7AC5A700639E34 /* FirebaseAuth in Frameworks */,
 				FAA8874A2D7AC5A700639E34 /* FirebaseFirestore in Frameworks */,
 			);
@@ -151,6 +153,7 @@
 				FAA887472D7AC5A700639E34 /* FirebaseAuth */,
 				FAA887492D7AC5A700639E34 /* FirebaseFirestore */,
 				FAFAE0432D834D1B0042C3B4 /* FirebaseMessaging */,
+				FA7706842D8C8433007C0351 /* FirebaseCrashlytics */,
 			);
 			productName = ParentingAssistant;
 			productReference = FA0D6E3D2D7A24AF00AF0365 /* ParentingAssistant.app */;
@@ -651,6 +654,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		FA7706842D8C8433007C0351 /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA0D6EAD2D7ABF6400AF0365 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCrashlytics;
+		};
 		FAA887452D7AC5A700639E34 /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = FA0D6EAD2D7ABF6400AF0365 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
