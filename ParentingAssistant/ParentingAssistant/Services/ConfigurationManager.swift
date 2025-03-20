@@ -1,5 +1,7 @@
 import Foundation
 import Security
+import FirebaseCrashlytics
+import FirebaseAnalytics
 
 enum ConfigurationError: Error {
     case missingKey
@@ -14,6 +16,14 @@ enum ConfigurationError: Error {
             return "API key is empty or invalid"
         case .keychainError:
             return "Failed to access or store key in Keychain"
+        }
+    }
+    
+    var analyticsEventName: String {
+        switch self {
+        case .missingKey: return "config_error_missing_key"
+        case .invalidKey: return "config_error_invalid_key"
+        case .keychainError: return "config_error_keychain"
         }
     }
 }
@@ -32,12 +42,9 @@ class ConfigurationManager {
     private func getConfigFilePath() -> String? {
         let fileManager = FileManager.default
         
-        // Get the project directory (where your source code is)
-        let projectDirectory = "/Users/ahmedm/Developer/ParentingAssistant/ParentingAssistant"
-        print("   Project directory: \(projectDirectory)")
-        
-        // Try to find the config file in the project directory
-        let configPath = (projectDirectory as NSString).appendingPathComponent("Config.xcconfig")
+        // Try to find the config file in the current directory
+        let currentPath = fileManager.currentDirectoryPath
+        let configPath = (currentPath as NSString).appendingPathComponent("Config.xcconfig")
         print("   Looking for config file at: \(configPath)")
         
         if fileManager.fileExists(atPath: configPath) {
@@ -45,7 +52,7 @@ class ConfigurationManager {
         }
         
         // If not found, try the parent directory
-        let parentPath = (projectDirectory as NSString).deletingLastPathComponent
+        let parentPath = (currentPath as NSString).deletingLastPathComponent
         let parentConfigPath = (parentPath as NSString).appendingPathComponent("Config.xcconfig")
         print("   Looking for config file at: \(parentConfigPath)")
         
@@ -53,7 +60,41 @@ class ConfigurationManager {
             return parentConfigPath
         }
         
+        // Try to find in the bundle
+        if let bundlePath = Bundle.main.path(forResource: "Config", ofType: "xcconfig") {
+            print("   Found config file in bundle at: \(bundlePath)")
+            return bundlePath
+        }
+        
         return nil
+    }
+    
+    private func logError(_ error: Error, context: String) {
+        print("❌ Error in \(context): \(error.localizedDescription)")
+        
+        // Log to Crashlytics
+        Crashlytics.crashlytics().record(error: error, userInfo: ["context": context])
+        
+        // Log to Analytics
+        if let configError = error as? ConfigurationError {
+            Analytics.logEvent(configError.analyticsEventName, parameters: [
+                "context": context,
+                "error_description": error.localizedDescription
+            ])
+        } else {
+            Analytics.logEvent("config_error_unknown", parameters: [
+                "context": context,
+                "error_description": error.localizedDescription
+            ])
+        }
+    }
+    
+    private func logSuccess(_ message: String, context: String) {
+        print("✅ \(message)")
+        Analytics.logEvent("config_success", parameters: [
+            "context": context,
+            "message": message
+        ])
     }
     
     var openAIKey: String {
@@ -63,29 +104,25 @@ class ConfigurationManager {
             // First try to get from Keychain
             print("   Checking Keychain...")
             if let key = try? getKeyFromKeychain(key: "openai_api_key") {
-                print("   ✅ Found key in Keychain")
+                logSuccess("Found key in Keychain", context: "openai_key_retrieval")
                 return key
             }
             print("   ❌ Key not found in Keychain")
             
-            // Try to read from .xcconfig file
-            print("   Checking .xcconfig file...")
+            // For development only, try to read from .xcconfig file
+            #if DEBUG
+            print("   Checking .xcconfig file (DEBUG only)...")
             if let configPath = getConfigFilePath() {
                 print("   ✅ Found config file")
                 do {
                     let contents = try String(contentsOfFile: configPath, encoding: .utf8)
-                    print("\n   Config file contents:")
-                    print("   -------------------")
-                    print(contents)
-                    print("   -------------------")
-                    
                     let lines = contents.components(separatedBy: .newlines)
                     for line in lines {
                         if line.hasPrefix("OPENAI_API_KEY") {
                             let components = line.components(separatedBy: "=")
                             if components.count == 2 {
                                 let key = components[1].trimmingCharacters(in: .whitespaces)
-                                print("   ✅ Found key in .xcconfig file")
+                                logSuccess("Found key in .xcconfig file", context: "openai_key_retrieval")
                                 // Store in Keychain for future use
                                 try? storeKeyInKeychain(key: key, keyIdentifier: "openai_api_key")
                                 return key
@@ -93,33 +130,34 @@ class ConfigurationManager {
                         }
                     }
                 } catch {
-                    print("   ❌ Failed to read config file: \(error)")
+                    logError(error, context: "openai_key_xcconfig")
                 }
             }
-            print("   ❌ Key not found in .xcconfig file")
+            #endif
             
-            // If not found, try environment variables
-            print("   Checking environment variables...")
+            // Try environment variables (for development)
+            #if DEBUG
+            print("   Checking environment variables (DEBUG only)...")
             if let key = ProcessInfo.processInfo.environment["OPENAI_API_KEY"] {
-                print("   ✅ Found key in environment variables")
+                logSuccess("Found key in environment variables", context: "openai_key_retrieval")
                 // Store in Keychain for future use
                 try? storeKeyInKeychain(key: key, keyIdentifier: "openai_api_key")
                 return key
             }
+            #endif
             
             // Try Info.plist as last resort
             print("   Checking Info.plist...")
             if let key = Bundle.main.infoDictionary?["OPENAI_API_KEY"] as? String {
-                print("   ✅ Found key in Info.plist")
+                logSuccess("Found key in Info.plist", context: "openai_key_retrieval")
                 // Store in Keychain for future use
                 try? storeKeyInKeychain(key: key, keyIdentifier: "openai_api_key")
                 return key
             }
             
-            print("   ❌ Key not found in any location")
-            print("   Available Info.plist keys: \(Bundle.main.infoDictionary?.keys.joined(separator: ", ") ?? "none")")
-            print("   Environment variables: \(ProcessInfo.processInfo.environment.keys.joined(separator: ", "))")
-            throw ConfigurationError.missingKey
+            let error = ConfigurationError.missingKey
+            logError(error, context: "openai_key_retrieval")
+            throw error
         }
     }
     
@@ -194,6 +232,15 @@ class ConfigurationManager {
     
     private func storeKeyInKeychain(key: String, keyIdentifier: String) throws {
         print("   💾 Attempting to store key in Keychain...")
+        
+        // First try to delete any existing key
+        let deleteQuery: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: keyIdentifier
+        ]
+        SecItemDelete(deleteQuery as CFDictionary)
+        
+        // Then store the new key
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrAccount as String: keyIdentifier,
@@ -240,21 +287,33 @@ class ConfigurationManager {
         
         // Validate OpenAI Key
         print("   Checking OpenAI key...")
-        let openAIKey = try self.openAIKey
-        guard !openAIKey.isEmpty else {
-            print("   ❌ OpenAI key is empty")
-            throw ConfigurationError.invalidKey
+        do {
+            let openAIKey = try self.openAIKey
+            guard !openAIKey.isEmpty else {
+                let error = ConfigurationError.invalidKey
+                logError(error, context: "openai_key_validation")
+                throw error
+            }
+            logSuccess("OpenAI key is valid", context: "openai_key_validation")
+        } catch {
+            logError(error, context: "openai_key_validation")
+            throw error
         }
-        print("   ✅ OpenAI key is valid")
         
         // Validate Firebase Key
         print("   Checking Firebase key...")
-        let firebaseKey = try self.firebaseKey
-        guard !firebaseKey.isEmpty else {
-            print("   ❌ Firebase key is empty")
-            throw ConfigurationError.invalidKey
+        do {
+            let firebaseKey = try self.firebaseKey
+            guard !firebaseKey.isEmpty else {
+                let error = ConfigurationError.invalidKey
+                logError(error, context: "firebase_key_validation")
+                throw error
+            }
+            logSuccess("Firebase key is valid", context: "firebase_key_validation")
+        } catch {
+            logError(error, context: "firebase_key_validation")
+            throw error
         }
-        print("   ✅ Firebase key is valid")
     }
     
     // MARK: - Testing
@@ -292,7 +351,7 @@ class ConfigurationManager {
             print("Files in directory:")
             files.forEach { print("   - \($0)") }
         } catch {
-            print("Failed to list directory contents: \(error)")
+            logError(error, context: "directory_listing")
         }
         
         // Print config file contents
@@ -301,17 +360,17 @@ class ConfigurationManager {
         // Test OpenAI key retrieval
         do {
             let key = try openAIKey
-            print("\n✅ Successfully retrieved OpenAI key: \(key.prefix(8))...")
+            logSuccess("Successfully retrieved OpenAI key", context: "key_retrieval_test")
         } catch {
-            print("\n❌ Failed to retrieve OpenAI key: \(error)")
+            logError(error, context: "openai_key_retrieval_test")
         }
         
         // Test Firebase key retrieval
         do {
             let key = try firebaseKey
-            print("\n✅ Successfully retrieved Firebase key: \(key.prefix(8))...")
+            logSuccess("Successfully retrieved Firebase key", context: "key_retrieval_test")
         } catch {
-            print("\n❌ Failed to retrieve Firebase key: \(error)")
+            logError(error, context: "firebase_key_retrieval_test")
         }
     }
 } 
