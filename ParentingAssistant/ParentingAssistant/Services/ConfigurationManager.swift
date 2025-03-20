@@ -32,12 +32,9 @@ class ConfigurationManager {
     private func getConfigFilePath() -> String? {
         let fileManager = FileManager.default
         
-        // Get the project directory (where your source code is)
-        let projectDirectory = "/Users/ahmedm/Developer/ParentingAssistant/ParentingAssistant"
-        print("   Project directory: \(projectDirectory)")
-        
-        // Try to find the config file in the project directory
-        let configPath = (projectDirectory as NSString).appendingPathComponent("Config.xcconfig")
+        // Try to find the config file in the current directory
+        let currentPath = fileManager.currentDirectoryPath
+        let configPath = (currentPath as NSString).appendingPathComponent("Config.xcconfig")
         print("   Looking for config file at: \(configPath)")
         
         if fileManager.fileExists(atPath: configPath) {
@@ -45,12 +42,18 @@ class ConfigurationManager {
         }
         
         // If not found, try the parent directory
-        let parentPath = (projectDirectory as NSString).deletingLastPathComponent
+        let parentPath = (currentPath as NSString).deletingLastPathComponent
         let parentConfigPath = (parentPath as NSString).appendingPathComponent("Config.xcconfig")
         print("   Looking for config file at: \(parentConfigPath)")
         
         if fileManager.fileExists(atPath: parentConfigPath) {
             return parentConfigPath
+        }
+        
+        // Try to find in the bundle
+        if let bundlePath = Bundle.main.path(forResource: "Config", ofType: "xcconfig") {
+            print("   Found config file in bundle at: \(bundlePath)")
+            return bundlePath
         }
         
         return nil
@@ -68,17 +71,13 @@ class ConfigurationManager {
             }
             print("   ❌ Key not found in Keychain")
             
-            // Try to read from .xcconfig file
-            print("   Checking .xcconfig file...")
+            // For development only, try to read from .xcconfig file
+            #if DEBUG
+            print("   Checking .xcconfig file (DEBUG only)...")
             if let configPath = getConfigFilePath() {
                 print("   ✅ Found config file")
                 do {
                     let contents = try String(contentsOfFile: configPath, encoding: .utf8)
-                    print("\n   Config file contents:")
-                    print("   -------------------")
-                    print(contents)
-                    print("   -------------------")
-                    
                     let lines = contents.components(separatedBy: .newlines)
                     for line in lines {
                         if line.hasPrefix("OPENAI_API_KEY") {
@@ -96,16 +95,18 @@ class ConfigurationManager {
                     print("   ❌ Failed to read config file: \(error)")
                 }
             }
-            print("   ❌ Key not found in .xcconfig file")
+            #endif
             
-            // If not found, try environment variables
-            print("   Checking environment variables...")
+            // Try environment variables (for development)
+            #if DEBUG
+            print("   Checking environment variables (DEBUG only)...")
             if let key = ProcessInfo.processInfo.environment["OPENAI_API_KEY"] {
                 print("   ✅ Found key in environment variables")
                 // Store in Keychain for future use
                 try? storeKeyInKeychain(key: key, keyIdentifier: "openai_api_key")
                 return key
             }
+            #endif
             
             // Try Info.plist as last resort
             print("   Checking Info.plist...")
@@ -117,8 +118,6 @@ class ConfigurationManager {
             }
             
             print("   ❌ Key not found in any location")
-            print("   Available Info.plist keys: \(Bundle.main.infoDictionary?.keys.joined(separator: ", ") ?? "none")")
-            print("   Environment variables: \(ProcessInfo.processInfo.environment.keys.joined(separator: ", "))")
             throw ConfigurationError.missingKey
         }
     }
@@ -194,6 +193,15 @@ class ConfigurationManager {
     
     private func storeKeyInKeychain(key: String, keyIdentifier: String) throws {
         print("   💾 Attempting to store key in Keychain...")
+        
+        // First try to delete any existing key
+        let deleteQuery: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: keyIdentifier
+        ]
+        SecItemDelete(deleteQuery as CFDictionary)
+        
+        // Then store the new key
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrAccount as String: keyIdentifier,
