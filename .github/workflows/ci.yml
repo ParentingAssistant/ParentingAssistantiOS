@@ -76,7 +76,7 @@ jobs:
                     -exportPath $RUNNER_TEMP/build | xcpretty
 
       - name: Upload IPA to TestFlight
-        uses: apple-actions/upload-testflight@v1
+        uses: apple-actions/upload-testflight@main
         env:
           APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
           APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
