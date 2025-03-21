@@ -76,16 +76,23 @@ jobs:
                     -exportPath $RUNNER_TEMP/build | xcpretty
 
       - name: Upload IPA to TestFlight
-        uses: apple-actions/upload-testflight@0fb3ca89fd13da84edcffc6bda45629655f3c84a
-        env:
-          APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
-          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
-          APP_STORE_CONNECT_API_ISSUER: ${{ secrets.APP_STORE_CONNECT_API_ISSUER }}
+        uses: apple-actions/download-provisioning-profiles@v1.0.0
         with:
-          app-path: ${{ runner.temp }}/build/ParentingAssistant.ipa
-          skip-waiting: true
-          retry-times: 3
-          retry-delay: 30
+          bundle-id: "com.yourcompany.parentingassistant"
+          profile-type: "IOS_APP_STORE"
+          api-key: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
+          api-key-id: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          api-issuer: ${{ secrets.APP_STORE_CONNECT_API_ISSUER }}
+
+      - name: Upload to TestFlight
+        run: |
+          echo "Starting TestFlight upload..."
+          xcrun altool --upload-app \
+            --type ios \
+            --file "${{ runner.temp }}/build/ParentingAssistant.ipa" \
+            --username "${{ secrets.APP_STORE_CONNECT_USERNAME }}" \
+            --password "${{ secrets.APP_STORE_CONNECT_PASSWORD }}" \
+            --asc-provider "${{ secrets.APP_STORE_CONNECT_TEAM_ID }}"
 
       - name: Upload dSYM Files
         run: |
