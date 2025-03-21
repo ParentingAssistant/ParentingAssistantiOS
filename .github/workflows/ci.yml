@@ -73,14 +73,22 @@ jobs:
                     -exportPath $RUNNER_TEMP/build | xcpretty
 
       - name: Upload IPA to TestFlight
-        uses: apple-actions/upload-testflight@v1.1.0
+        uses: apple-actions/download-provisioning-profiles@v1.0.0
+        with:
+          bundle-id: "com.yourcompany.parentingassistant"
+          profile-type: "IOS_APP_STORE"
+          api-key: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
+          api-key-id: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          api-issuer: ${{ secrets.APP_STORE_CONNECT_API_ISSUER }}
+
+      - name: Upload to TestFlight
+        uses: apple-actions/upload-testflight@v1.0.0
         with:
           app-path: ${{ runner.temp }}/build/ParentingAssistant.ipa
           api-key: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
           api-key-id: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           api-issuer: ${{ secrets.APP_STORE_CONNECT_API_ISSUER }}
           skip-waiting: true
-          retry-times: 3
 
       - name: Upload dSYM Files
         run: |
