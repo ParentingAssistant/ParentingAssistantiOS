@@ -10,6 +10,9 @@ on:
 env:
   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
   FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+  APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
+  APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+  APP_STORE_CONNECT_API_ISSUER: ${{ secrets.APP_STORE_CONNECT_API_ISSUER }}
 
 jobs:
   build:
@@ -73,14 +76,14 @@ jobs:
                     -exportPath $RUNNER_TEMP/build | xcpretty
 
       - name: Upload IPA to TestFlight
-        uses: apple-actions/upload-testflight@v1.0.1
+        uses: apple-actions/upload-testflight@v1
+        env:
+          APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_API_ISSUER: ${{ secrets.APP_STORE_CONNECT_API_ISSUER }}
         with:
           app-path: ${{ runner.temp }}/build/ParentingAssistant.ipa
-          api-key: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
-          api-key-id: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
-          api-issuer: ${{ secrets.APP_STORE_CONNECT_API_ISSUER }}
           skip-waiting: true
-          retry-times: 3
 
       - name: Upload dSYM Files
         run: |
