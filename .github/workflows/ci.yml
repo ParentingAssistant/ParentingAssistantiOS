@@ -52,6 +52,7 @@ jobs:
       - name: Build App
         run: |
           echo "Starting build process..."
+          cd ParentingAssistant
           xcodebuild -project ParentingAssistant.xcodeproj \
                     -scheme ParentingAssistant \
                     -configuration Release \
@@ -61,6 +62,7 @@ jobs:
       - name: Archive App
         run: |
           echo "Starting archive process..."
+          cd ParentingAssistant
           echo "Current directory contents:"
           ls -la
           echo "Archive path: $RUNNER_TEMP/build/ParentingAssistant.xcarchive"
@@ -75,6 +77,7 @@ jobs:
       - name: Export IPA
         run: |
           echo "Starting IPA export process..."
+          cd ParentingAssistant
           echo "Export path: $RUNNER_TEMP/build"
           # Create exportOptions.plist with the correct team ID
           cat > exportOptions.plist << EOL
