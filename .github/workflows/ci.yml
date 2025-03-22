@@ -61,8 +61,10 @@ jobs:
       - name: Archive App
         run: |
           echo "Starting archive process..."
+          echo "Current directory contents:"
+          ls -la
           echo "Archive path: $RUNNER_TEMP/build/ParentingAssistant.xcarchive"
-          xcodebuild -workspace ParentingAssistant.xcworkspace \
+          xcodebuild -project ParentingAssistant.xcodeproj \
                     -scheme ParentingAssistant \
                     -configuration Release \
                     -archivePath $RUNNER_TEMP/build/ParentingAssistant.xcarchive \
