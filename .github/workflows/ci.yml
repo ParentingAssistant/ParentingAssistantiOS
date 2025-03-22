@@ -79,10 +79,9 @@ jobs:
         uses: apple-actions/download-provisioning-profiles@v1.0.0
         with:
           bundle-id: "com.yourcompany.parentingassistant"
-          profile-type: "IOS_APP_STORE"
-          api-key: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
+          issuer-id: ${{ secrets.APP_STORE_CONNECT_API_ISSUER }}
           api-key-id: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
-          api-issuer: ${{ secrets.APP_STORE_CONNECT_API_ISSUER }}
+          api-private-key: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
 
       - name: Upload to TestFlight
         run: |
