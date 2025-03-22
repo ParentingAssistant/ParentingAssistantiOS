@@ -78,7 +78,7 @@ jobs:
       - name: Upload IPA to TestFlight
         uses: apple-actions/download-provisioning-profiles@v1.0.0
         with:
-          bundle-id: "com.yourcompany.parentingassistant"
+          bundle-id: "ParentingAssistant.ParentingAssistant"
           issuer-id: ${{ secrets.APP_STORE_CONNECT_API_ISSUER }}
           api-key-id: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           api-private-key: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
