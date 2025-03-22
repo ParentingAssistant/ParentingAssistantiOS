@@ -126,6 +126,15 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		FA0D6E3F2D7A24AF00AF0365 /* ParentingAssistant */ = {
+			isa = PBXGroup;
+			children = (
+				FA0D6E402D7A24AF00AF0365 /* ParentingAssistantApp.swift */,
+				FA0D6E422D7A24AF00AF0365 /* ContentView.swift */,
+			);
+			path = ParentingAssistant;
+			sourceTree = "<group>";
+		};
 		FAA887442D7AC5A700639E34 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -147,9 +156,6 @@
 			buildRules = (
 			);
 			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				FA0D6E3F2D7A24AF00AF0365 /* ParentingAssistant */,
 			);
 			name = ParentingAssistant;
 			packageProductDependencies = (
