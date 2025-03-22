@@ -86,12 +86,15 @@ jobs:
       - name: Upload to TestFlight
         run: |
           echo "Starting TestFlight upload..."
+          echo "Checking IPA file location..."
+          ls -la ${{ runner.temp }}/build/
+          echo "Uploading to TestFlight..."
           xcrun altool --upload-app \
             --type ios \
             --file "${{ runner.temp }}/build/ParentingAssistant.ipa" \
-            --username "${{ secrets.APP_STORE_CONNECT_USERNAME }}" \
-            --password "${{ secrets.APP_STORE_CONNECT_PASSWORD }}" \
-            --asc-provider "${{ secrets.APP_STORE_CONNECT_TEAM_ID }}"
+            --apiKey "${{ secrets.APP_STORE_CONNECT_API_KEY }}" \
+            --apiKeyId "${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}" \
+            --apiIssuer "${{ secrets.APP_STORE_CONNECT_API_ISSUER }}"
 
       - name: Upload dSYM Files
         run: |
