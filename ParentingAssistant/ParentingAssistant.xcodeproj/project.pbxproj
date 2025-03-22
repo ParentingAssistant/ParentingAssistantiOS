@@ -240,7 +240,7 @@
 			packageReferences = (
 				FA0D6EAD2D7ABF6400AF0365 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
-			preferredProjectObjectVersion = 77;
+			preferredProjectObjectVersion = 56;
 			productRefGroup = FA0D6E3E2D7A24AF00AF0365 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
