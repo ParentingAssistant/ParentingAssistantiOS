@@ -87,7 +87,7 @@ jobs:
         run: |
           echo "Starting TestFlight upload..."
           echo "Checking IPA file location..."
-          ls -la ${{ runner.temp }}/build/
+          ls -la "${{ runner.temp }}/build/"
           echo "Uploading to TestFlight..."
           xcrun altool --upload-app \
             --type ios \
