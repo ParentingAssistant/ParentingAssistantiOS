@@ -3,12 +3,10 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		FA0D6E402D7A24AF00AF0365 /* ParentingAssistantApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0D6E3F2D7A24AF00AF0365 /* ParentingAssistantApp.swift */; };
-		FA0D6E422D7A24AF00AF0365 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0D6E412D7A24AF00AF0365 /* ContentView.swift */; };
 		FA7706852D8C8433007C0351 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = FA7706842D8C8433007C0351 /* FirebaseCrashlytics */; };
 		FAA887462D7AC5A700639E34 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = FAA887452D7AC5A700639E34 /* FirebaseAnalytics */; };
 		FAA887482D7AC5A700639E34 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = FAA887472D7AC5A700639E34 /* FirebaseAuth */; };
@@ -36,8 +34,6 @@
 
 /* Begin PBXFileReference section */
 		FA0D6E3D2D7A24AF00AF0365 /* ParentingAssistant.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ParentingAssistant.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		FA0D6E3F2D7A24AF00AF0365 /* ParentingAssistantApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParentingAssistantApp.swift; sourceTree = "<group>"; };
-		FA0D6E412D7A24AF00AF0365 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		FA0D6E4E2D7A24B000AF0365 /* ParentingAssistantTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ParentingAssistantTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		FA0D6E582D7A24B000AF0365 /* ParentingAssistantUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ParentingAssistantUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		FAFADF2C2D833C740042C3B4 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
@@ -126,15 +122,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		FA0D6E3F2D7A24AF00AF0365 /* ParentingAssistant */ = {
-			isa = PBXGroup;
-			children = (
-				FA0D6E402D7A24AF00AF0365 /* ParentingAssistantApp.swift */,
-				FA0D6E422D7A24AF00AF0365 /* ContentView.swift */,
-			);
-			path = ParentingAssistant;
-			sourceTree = "<group>";
-		};
 		FAA887442D7AC5A700639E34 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -156,6 +143,9 @@
 			buildRules = (
 			);
 			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				FA0D6E3F2D7A24AF00AF0365 /* ParentingAssistant */,
 			);
 			name = ParentingAssistant;
 			packageProductDependencies = (
@@ -250,7 +240,7 @@
 			packageReferences = (
 				FA0D6EAD2D7ABF6400AF0365 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
-			preferredProjectObjectVersion = 56;
+			preferredProjectObjectVersion = 77;
 			productRefGroup = FA0D6E3E2D7A24AF00AF0365 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -292,8 +282,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FA0D6E422D7A24AF00AF0365 /* ContentView.swift in Sources */,
-				FA0D6E402D7A24AF00AF0365 /* ParentingAssistantApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
