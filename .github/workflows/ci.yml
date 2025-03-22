@@ -61,11 +61,14 @@ jobs:
       - name: Archive App
         run: |
           echo "Starting archive process..."
-          xcodebuild -project ParentingAssistant.xcodeproj \
+          echo "Archive path: $RUNNER_TEMP/build/ParentingAssistant.xcarchive"
+          xcodebuild -workspace ParentingAssistant.xcworkspace \
                     -scheme ParentingAssistant \
                     -configuration Release \
-                    -archivePath $RUNNER_TEMP/ParentingAssistant.xcarchive \
-                    archive | xcpretty
+                    -archivePath $RUNNER_TEMP/build/ParentingAssistant.xcarchive \
+                    clean archive | xcpretty
+          echo "Checking archive directory contents:"
+          ls -la $RUNNER_TEMP/build/
 
       - name: Export IPA
         run: |
@@ -101,7 +104,7 @@ jobs:
           EOL
           echo "Created exportOptions.plist with team ID"
           xcodebuild -exportArchive \
-                    -archivePath $RUNNER_TEMP/ParentingAssistant.xcarchive \
+                    -archivePath $RUNNER_TEMP/build/ParentingAssistant.xcarchive \
                     -exportOptionsPlist exportOptions.plist \
                     -exportPath $RUNNER_TEMP/build | xcpretty
           echo "Checking export directory contents:"
