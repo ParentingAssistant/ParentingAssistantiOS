@@ -70,10 +70,13 @@ jobs:
       - name: Export IPA
         run: |
           echo "Starting IPA export process..."
+          echo "Export path: $RUNNER_TEMP/build"
           xcodebuild -exportArchive \
                     -archivePath $RUNNER_TEMP/ParentingAssistant.xcarchive \
                     -exportOptionsPlist exportOptions.plist \
                     -exportPath $RUNNER_TEMP/build | xcpretty
+          echo "Checking export directory contents:"
+          ls -la $RUNNER_TEMP/build/
 
       - name: Upload IPA to TestFlight
         uses: apple-actions/download-provisioning-profiles@v1.0.0
@@ -86,12 +89,13 @@ jobs:
       - name: Upload to TestFlight
         run: |
           echo "Starting TestFlight upload..."
+          echo "RUNNER_TEMP value: $RUNNER_TEMP"
           echo "Checking IPA file location..."
-          ls -la "${{ runner.temp }}/build/"
+          ls -la "$RUNNER_TEMP/build/"
           echo "Uploading to TestFlight..."
           xcrun altool --upload-app \
             --type ios \
-            --file "${{ runner.temp }}/build/ParentingAssistant.ipa" \
+            --file "$RUNNER_TEMP/build/ParentingAssistant.ipa" \
             --apiKey "${{ secrets.APP_STORE_CONNECT_API_KEY }}" \
             --apiKeyId "${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}" \
             --apiIssuer "${{ secrets.APP_STORE_CONNECT_API_ISSUER }}"
