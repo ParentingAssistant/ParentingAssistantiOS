@@ -10,6 +10,9 @@ on:
 env:
   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
   FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+  APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
+  APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+  APP_STORE_CONNECT_API_ISSUER: ${{ secrets.APP_STORE_CONNECT_API_ISSUER }}
 
 jobs:
   build:
@@ -49,6 +52,7 @@ jobs:
       - name: Build App
         run: |
           echo "Starting build process..."
+          cd ParentingAssistant
           xcodebuild -project ParentingAssistant.xcodeproj \
                     -scheme ParentingAssistant \
                     -configuration Release \
@@ -58,27 +62,80 @@ jobs:
       - name: Archive App
         run: |
           echo "Starting archive process..."
+          cd ParentingAssistant
+          echo "Current directory contents:"
+          ls -la
+          echo "Archive path: $RUNNER_TEMP/build/ParentingAssistant.xcarchive"
           xcodebuild -project ParentingAssistant.xcodeproj \
                     -scheme ParentingAssistant \
                     -configuration Release \
-                    -archivePath $RUNNER_TEMP/ParentingAssistant.xcarchive \
-                    archive | xcpretty
+                    -archivePath $RUNNER_TEMP/build/ParentingAssistant.xcarchive \
+                    clean archive | xcpretty
+          echo "Checking archive directory contents:"
+          ls -la $RUNNER_TEMP/build/
 
       - name: Export IPA
         run: |
           echo "Starting IPA export process..."
+          cd ParentingAssistant
+          echo "Export path: $RUNNER_TEMP/build"
+          # Create exportOptions.plist with the correct team ID
+          cat > exportOptions.plist << EOL
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>method</key>
+              <string>app-store</string>
+              <key>teamID</key>
+              <string>${{ secrets.APP_STORE_TEAM_ID }}</string>
+              <key>signingStyle</key>
+              <string>manual</string>
+              <key>provisioningProfiles</key>
+              <dict>
+                  <key>ParentingAssistant.ParentingAssistant</key>
+                  <string>ParentingAssistant App Store</string>
+              </dict>
+              <key>signingCertificate</key>
+              <string>Apple Distribution</string>
+              <key>stripSwiftSymbols</key>
+              <true/>
+              <key>uploadSymbols</key>
+              <true/>
+              <key>uploadBitcode</key>
+              <false/>
+          </dict>
+          </plist>
+          EOL
+          echo "Created exportOptions.plist with team ID"
           xcodebuild -exportArchive \
-                    -archivePath $RUNNER_TEMP/ParentingAssistant.xcarchive \
+                    -archivePath $RUNNER_TEMP/build/ParentingAssistant.xcarchive \
                     -exportOptionsPlist exportOptions.plist \
                     -exportPath $RUNNER_TEMP/build | xcpretty
+          echo "Checking export directory contents:"
+          ls -la $RUNNER_TEMP/build/
 
       - name: Upload IPA to TestFlight
-        uses: apple-actions/upload-testflight@v1
+        uses: apple-actions/download-provisioning-profiles@v1.0.0
         with:
-          app-path: ${{ runner.temp }}/build/ParentingAssistant.ipa
-          api-key: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
+          bundle-id: "ParentingAssistant.ParentingAssistant"
+          issuer-id: ${{ secrets.APP_STORE_CONNECT_API_ISSUER }}
           api-key-id: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
-          api-issuer: ${{ secrets.APP_STORE_CONNECT_API_ISSUER }}
+          api-private-key: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
+
+      - name: Upload to TestFlight
+        run: |
+          echo "Starting TestFlight upload..."
+          echo "RUNNER_TEMP value: $RUNNER_TEMP"
+          echo "Checking IPA file location..."
+          ls -la "$RUNNER_TEMP/build/"
+          echo "Uploading to TestFlight..."
+          xcrun altool --upload-app \
+            --type ios \
+            --file "$RUNNER_TEMP/build/ParentingAssistant.ipa" \
+            --apiKey "${{ secrets.APP_STORE_CONNECT_API_KEY }}" \
+            --apiKeyId "${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}" \
+            --apiIssuer "${{ secrets.APP_STORE_CONNECT_API_ISSUER }}"
 
       - name: Upload dSYM Files
         run: |
