@@ -17,20 +17,40 @@ class OpenAIService: ObservableObject {
         do {
             // Get API key
             print("   🔑 Getting API key...")
-            let apiKey = try ConfigurationManager.shared.openAIKey
+            var apiKey = try ConfigurationManager.shared.openAIKey
             print("   ✅ API key retrieved successfully")
+            print("   🔑 API Key (first 10 chars): \(apiKey.prefix(10))...")
+            
+            if apiKey.isEmpty || apiKey.hasPrefix("your_") {
+                print("   ⚠️ ERROR: API key appears to be a placeholder or empty")
+                throw OpenAIError.invalidKey
+            }
             
             // Prepare the request
             print("   📝 Preparing request...")
             let url = URL(string: "https://api.openai.com/v1/chat/completions")!
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
-            request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+            
+            // Debug: Print the auth header (redacted)
+            let authHeaderValue = "Bearer \(apiKey)"
+            print("   🔒 Authorization Header: Bearer \(apiKey.prefix(5))...\(apiKey.suffix(5))")
+            request.setValue(authHeaderValue, forHTTPHeaderField: "Authorization")
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            
+            // Debug: Double-check the authorization header
+            if let actualAuthHeader = request.value(forHTTPHeaderField: "Authorization") {
+                let redactedHeader = "Bearer \(actualAuthHeader.dropFirst(7).prefix(5))...\(actualAuthHeader.dropFirst(7).suffix(5))"
+                print("   ✅ Verified Authorization Header: \(redactedHeader)")
+                
+                if !actualAuthHeader.contains(apiKey) {
+                    print("   ❌ ERROR: Authorization header doesn't contain the correct API key!")
+                }
+            }
             
             // Prepare the request body
             let requestBody: [String: Any] = [
-                "model": "gpt-4",
+                "model": "gpt-3.5-turbo",
                 "messages": [
                     ["role": "system", "content": "You are a helpful parenting assistant."],
                     ["role": "user", "content": prompt.content]
@@ -56,6 +76,13 @@ class OpenAIService: ObservableObject {
             if httpResponse.statusCode != 200 {
                 if let errorJson = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
                     print("   ❌ API Error: \(errorJson)")
+                    
+                    // Check for invalid key error
+                    if let error = errorJson["error"] as? [String: Any],
+                       let code = error["code"] as? String, code == "invalid_api_key",
+                       let message = error["message"] as? String {
+                        print("   🔍 Invalid API key error. Message: \(message)")
+                    }
                 }
                 throw OpenAIError.invalidResponse
             }
@@ -76,11 +103,18 @@ class OpenAIService: ObservableObject {
             let promptResponse = PromptResponse(
                 promptId: prompt.id ?? UUID().uuidString,
                 content: content,
-                metadata: ["model": "gpt-4"]
+                metadata: ["model": "gpt-3.5-turbo"]
             )
             
-            try await promptService.addResponse(to: prompt.id ?? UUID().uuidString, content: content)
-            print("   ✅ Response stored successfully")
+            // Try to store the response, but don't fail if this doesn't work
+            do {
+                try await promptService.addResponse(to: prompt.id ?? UUID().uuidString, content: content)
+                print("   ✅ Response stored successfully in Firebase")
+            } catch {
+                // Just log the error but continue with the response
+                print("   ⚠️ Warning: Could not store response in Firebase: \(error.localizedDescription)")
+                print("   ℹ️ This is okay for testing - continuing with response")
+            }
             
             return promptResponse
             
@@ -97,6 +131,7 @@ class OpenAIService: ObservableObject {
 enum OpenAIError: Error {
     case invalidResponse
     case noContent
+    case invalidKey
     
     var localizedDescription: String {
         switch self {
@@ -104,6 +139,8 @@ enum OpenAIError: Error {
             return "Invalid response from OpenAI API"
         case .noContent:
             return "No content in OpenAI API response"
+        case .invalidKey:
+            return "Invalid API key"
         }
     }
 }
