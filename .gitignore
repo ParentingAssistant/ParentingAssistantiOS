@@ -60,3 +60,9 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
+
+# Sensitive configuration files
+Config.xcconfig
+**/Config.xcconfig
+GoogleService-Info.plist
+**/GoogleService-Info.plist

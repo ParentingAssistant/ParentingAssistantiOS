@@ -139,6 +139,7 @@
 				FA0D6E392D7A24AF00AF0365 /* Sources */,
 				FA0D6E3A2D7A24AF00AF0365 /* Frameworks */,
 				FA0D6E3B2D7A24AF00AF0365 /* Resources */,
+				FAF38C7B2D917EBA003F4EDD /* Upload dSYMs to Crashlytics */,
 			);
 			buildRules = (
 			);
@@ -276,6 +277,33 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		FAF38C7B2D917EBA003F4EDD /* Upload dSYMs to Crashlytics */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}",
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${PRODUCT_NAME}",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/GoogleService-Info.plist",
+				"$(TARGET_BUILD_DIR)/$(EXECUTABLE_PATH)",
+				"$(SRCROOT)/${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${PRODUCT_NAME}.debug.dylib",
+			);
+			name = "Upload dSYMs to Crashlytics";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = "\"${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\"";
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		FA0D6E392D7A24AF00AF0365 /* Sources */ = {
@@ -440,6 +468,7 @@
 				CODE_SIGN_ENTITLEMENTS = ParentingAssistant/ParentingAssistant.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"ParentingAssistant/Preview Content\"";
 				DEVELOPMENT_TEAM = VMXQN9K3P2;
 				ENABLE_HARDENED_RUNTIME = YES;
