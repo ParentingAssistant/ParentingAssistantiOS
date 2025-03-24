@@ -104,7 +104,7 @@ class ConfigurationManager {
             // First try to get from Keychain
             print("   Checking Keychain...")
             if let key = try? getKeyFromKeychain(key: "openai_api_key") {
-                logSuccess("Found key in Keychain", context: "openai_key_retrieval")
+                print("   ✅ Found key in Keychain")
                 return key
             }
             print("   ❌ Key not found in Keychain")
@@ -116,13 +116,17 @@ class ConfigurationManager {
                 print("   ✅ Found config file")
                 do {
                     let contents = try String(contentsOfFile: configPath, encoding: .utf8)
+                    // Print a limited portion of the contents for security
+                    print("   Config file found with \(contents.count) characters")
+                    
                     let lines = contents.components(separatedBy: .newlines)
                     for line in lines {
                         if line.hasPrefix("OPENAI_API_KEY") {
                             let components = line.components(separatedBy: "=")
-                            if components.count == 2 {
-                                let key = components[1].trimmingCharacters(in: .whitespaces)
-                                logSuccess("Found key in .xcconfig file", context: "openai_key_retrieval")
+                            if components.count >= 2 {
+                                // Join all components after the first one in case the key itself contains = characters
+                                let key = components[1...].joined(separator: "=").trimmingCharacters(in: .whitespaces)
+                                print("   ✅ Found key in .xcconfig file")
                                 // Store in Keychain for future use
                                 try? storeKeyInKeychain(key: key, keyIdentifier: "openai_api_key")
                                 return key
@@ -130,7 +134,7 @@ class ConfigurationManager {
                         }
                     }
                 } catch {
-                    logError(error, context: "openai_key_xcconfig")
+                    print("   ❌ Failed to read config file: \(error)")
                 }
             }
             #endif
@@ -139,7 +143,7 @@ class ConfigurationManager {
             #if DEBUG
             print("   Checking environment variables (DEBUG only)...")
             if let key = ProcessInfo.processInfo.environment["OPENAI_API_KEY"] {
-                logSuccess("Found key in environment variables", context: "openai_key_retrieval")
+                print("   ✅ Found key in environment variables")
                 // Store in Keychain for future use
                 try? storeKeyInKeychain(key: key, keyIdentifier: "openai_api_key")
                 return key
@@ -148,16 +152,17 @@ class ConfigurationManager {
             
             // Try Info.plist as last resort
             print("   Checking Info.plist...")
-            if let key = Bundle.main.infoDictionary?["OPENAI_API_KEY"] as? String {
-                logSuccess("Found key in Info.plist", context: "openai_key_retrieval")
+            if let key = Bundle.main.infoDictionary?["OPENAI_API_KEY"] as? String,
+               !key.isEmpty,
+               !key.hasPrefix("$(") {
+                print("   ✅ Found key in Info.plist")
                 // Store in Keychain for future use
                 try? storeKeyInKeychain(key: key, keyIdentifier: "openai_api_key")
                 return key
             }
             
-            let error = ConfigurationError.missingKey
-            logError(error, context: "openai_key_retrieval")
-            throw error
+            print("   ❌ Key not found in any location")
+            throw ConfigurationError.missingKey
         }
     }
     
@@ -179,17 +184,17 @@ class ConfigurationManager {
                 print("   ✅ Found config file")
                 do {
                     let contents = try String(contentsOfFile: configPath, encoding: .utf8)
-                    print("\n   Config file contents:")
-                    print("   -------------------")
-                    print(contents)
-                    print("   -------------------")
+                    // Print a limited portion of the contents for security
+                    print("   Config file found with \(contents.count) characters")
                     
                     let lines = contents.components(separatedBy: .newlines)
                     for line in lines {
-                        if line.hasPrefix("FIREBASE_API_KEY") {
+                        // Check for either FIREBASE_API_KEY or FIREBASE_KEY
+                        if line.hasPrefix("FIREBASE_KEY") || line.hasPrefix("FIREBASE_API_KEY") {
                             let components = line.components(separatedBy: "=")
-                            if components.count == 2 {
-                                let key = components[1].trimmingCharacters(in: .whitespaces)
+                            if components.count >= 2 {
+                                // Join all components after the first one in case the key itself contains = characters
+                                let key = components[1...].joined(separator: "=").trimmingCharacters(in: .whitespaces)
                                 print("   ✅ Found key in .xcconfig file")
                                 // Store in Keychain for future use
                                 try? storeKeyInKeychain(key: key, keyIdentifier: "firebase_api_key")
@@ -205,7 +210,8 @@ class ConfigurationManager {
             
             // If not found, try environment variables
             print("   Checking environment variables...")
-            if let key = ProcessInfo.processInfo.environment["FIREBASE_API_KEY"] {
+            // Check both environment variable names
+            if let key = ProcessInfo.processInfo.environment["FIREBASE_KEY"] ?? ProcessInfo.processInfo.environment["FIREBASE_API_KEY"] {
                 print("   ✅ Found key in environment variables")
                 // Store in Keychain for future use
                 try? storeKeyInKeychain(key: key, keyIdentifier: "firebase_api_key")
@@ -214,7 +220,9 @@ class ConfigurationManager {
             
             // Try Info.plist as last resort
             print("   Checking Info.plist...")
-            if let key = Bundle.main.infoDictionary?["FIREBASE_API_KEY"] as? String {
+            if let key = Bundle.main.infoDictionary?["FIREBASE_API_KEY"] as? String,
+               !key.isEmpty,
+               !key.hasPrefix("$(") {
                 print("   ✅ Found key in Info.plist")
                 // Store in Keychain for future use
                 try? storeKeyInKeychain(key: key, keyIdentifier: "firebase_api_key")
@@ -222,8 +230,6 @@ class ConfigurationManager {
             }
             
             print("   ❌ Key not found in any location")
-            print("   Available Info.plist keys: \(Bundle.main.infoDictionary?.keys.joined(separator: ", ") ?? "none")")
-            print("   Environment variables: \(ProcessInfo.processInfo.environment.keys.joined(separator: ", "))")
             throw ConfigurationError.missingKey
         }
     }

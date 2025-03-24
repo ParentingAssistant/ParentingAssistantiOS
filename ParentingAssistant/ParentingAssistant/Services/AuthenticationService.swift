@@ -136,7 +136,12 @@ class AuthenticationService: ObservableObject {
         do {
             try authManager.signOut()
             print("Sign out successful")
-            currentUser = nil
+            DispatchQueue.main.async {
+                self.isAuthenticated = false
+                self.currentUser = nil
+                // Ensure UI updates to reflect signed out state
+                NotificationCenter.default.post(name: NSNotification.Name("UserSignedOut"), object: nil)
+            }
         } catch {
             print("Sign out failed with error: \(error.localizedDescription)")
             self.error = error.localizedDescription

@@ -3,7 +3,7 @@ import SwiftUI
 struct SplashScreenView: View {
     @StateObject private var authService = AuthenticationService.shared
     @State private var isLoading = true
-    @State private var showHome = false
+    @State private var showMainContent = false
     @State private var currentFact: String = ""
     
     private let funFacts = [
@@ -61,10 +61,16 @@ struct SplashScreenView: View {
             selectRandomFact()
             checkAuthentication()
         }
-        .fullScreenCover(isPresented: $showHome) {
-            HomeView()
-                .transition(.opacity)
-                .animation(.easeIn(duration: 0.3), value: showHome)
+        .fullScreenCover(isPresented: $showMainContent) {
+            if authService.isAuthenticated {
+                HomeView()
+                    .transition(.opacity)
+                    .animation(.easeIn(duration: 0.3), value: showMainContent)
+            } else {
+                LoginView()
+                    .transition(.opacity)
+                    .animation(.easeIn(duration: 0.3), value: showMainContent)
+            }
         }
     }
     
@@ -105,11 +111,11 @@ struct SplashScreenView: View {
             group.leave()
         }
         
-        // Navigate to Home after all checks are complete
+        // Navigate to appropriate view after all checks are complete
         group.notify(queue: .main) {
             isLoading = false
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                showHome = true
+                showMainContent = true
             }
         }
     }

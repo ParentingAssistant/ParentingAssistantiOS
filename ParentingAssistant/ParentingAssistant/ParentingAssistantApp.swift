@@ -10,6 +10,8 @@ import FirebaseCore
 
 @main
 struct ParentingAssistantApp: App {
+    @StateObject private var authService = AuthenticationService.shared
+    
     init() {
         FirebaseApp.configure()
     }
@@ -18,6 +20,7 @@ struct ParentingAssistantApp: App {
         WindowGroup {
             SplashScreenView()
                 .preferredColorScheme(.light)
+                .environmentObject(authService)
         }
     }
 }
