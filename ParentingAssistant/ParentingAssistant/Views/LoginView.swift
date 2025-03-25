@@ -1,5 +1,6 @@
 import SwiftUI
 import LocalAuthentication
+import UIKit
 
 struct LoginView: View {
     @StateObject private var authService = AuthenticationService.shared
@@ -78,6 +79,30 @@ struct LoginView: View {
             .padding(.horizontal, 24)
             .padding(.top, 20)
             
+            // Or Divider
+            HStack {
+                Rectangle()
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(height: 1)
+                
+                Text("OR")
+                    .foregroundColor(.secondary)
+                    .font(.footnote)
+                    .padding(.horizontal, 8)
+                
+                Rectangle()
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(height: 1)
+            }
+            .padding(.horizontal, 24)
+            .padding(.vertical, 12)
+            
+            // Google Sign-In Button
+            GoogleSignInButton {
+                signInWithGoogle()
+            }
+            .padding(.horizontal, 24)
+            
             // Biometric Login
             if canUseBiometrics {
                 Button(action: {
@@ -142,6 +167,17 @@ struct LoginView: View {
             var error: NSError?
             canUseBiometrics = context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
         }
+    }
+    
+    private func signInWithGoogle() {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = windowScene.windows.first,
+              let rootViewController = window.rootViewController else {
+            print("Failed to get root view controller")
+            return
+        }
+        
+        authService.signInWithGoogle(presenting: rootViewController)
     }
     
     private func validateAndLogin() {
