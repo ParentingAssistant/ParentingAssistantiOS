@@ -136,6 +136,7 @@ class AuthenticationService: ObservableObject {
         do {
             try authManager.signOut()
             print("Sign out successful")
+            
             DispatchQueue.main.async {
                 self.isAuthenticated = false
                 self.currentUser = nil
@@ -296,6 +297,25 @@ class AuthenticationService: ObservableObject {
             case .failure(let error):
                 print("Failed to update profile: \(error.localizedDescription)")
                 completion(.failure(error))
+            }
+        }
+    }
+
+    func signInWithGoogle(presenting viewController: UIViewController) {
+        print("Initiating Google Sign-In")
+        isLoading = true
+        
+        authManager.signInWithGoogle(presenting: viewController) { [weak self] result in
+            guard let self = self else { return }
+            self.isLoading = false
+            
+            switch result {
+            case .success(let authResult):
+                print("Google Sign-In successful, fetching user data...")
+                self.fetchUserData(userId: authResult.user.uid)
+            case .failure(let error):
+                print("Google Sign-In failed with error: \(error.localizedDescription)")
+                self.error = error.localizedDescription
             }
         }
     }
