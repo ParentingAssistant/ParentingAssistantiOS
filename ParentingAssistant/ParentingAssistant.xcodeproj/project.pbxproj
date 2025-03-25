@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		FA7706852D8C8433007C0351 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = FA7706842D8C8433007C0351 /* FirebaseCrashlytics */; };
+		FAA41C6D2D9330660037154A /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = FAA41C6C2D9330660037154A /* GoogleSignIn */; };
+		FAA41C6F2D9330660037154A /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = FAA41C6E2D9330660037154A /* GoogleSignInSwift */; };
 		FAA887462D7AC5A700639E34 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = FAA887452D7AC5A700639E34 /* FirebaseAnalytics */; };
 		FAA887482D7AC5A700639E34 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = FAA887472D7AC5A700639E34 /* FirebaseAuth */; };
 		FAA8874A2D7AC5A700639E34 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = FAA887492D7AC5A700639E34 /* FirebaseFirestore */; };
@@ -77,9 +79,11 @@
 			files = (
 				FAFAE0442D834D1B0042C3B4 /* FirebaseMessaging in Frameworks */,
 				FAA887462D7AC5A700639E34 /* FirebaseAnalytics in Frameworks */,
+				FAA41C6F2D9330660037154A /* GoogleSignInSwift in Frameworks */,
 				FA7706852D8C8433007C0351 /* FirebaseCrashlytics in Frameworks */,
 				FAA887482D7AC5A700639E34 /* FirebaseAuth in Frameworks */,
 				FAA8874A2D7AC5A700639E34 /* FirebaseFirestore in Frameworks */,
+				FAA41C6D2D9330660037154A /* GoogleSignIn in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -155,6 +159,8 @@
 				FAA887492D7AC5A700639E34 /* FirebaseFirestore */,
 				FAFAE0432D834D1B0042C3B4 /* FirebaseMessaging */,
 				FA7706842D8C8433007C0351 /* FirebaseCrashlytics */,
+				FAA41C6C2D9330660037154A /* GoogleSignIn */,
+				FAA41C6E2D9330660037154A /* GoogleSignInSwift */,
 			);
 			productName = ParentingAssistant;
 			productReference = FA0D6E3D2D7A24AF00AF0365 /* ParentingAssistant.app */;
@@ -240,6 +246,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				FA0D6EAD2D7ABF6400AF0365 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				FAA41C6B2D93304E0037154A /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = FA0D6E3E2D7A24AF00AF0365 /* Products */;
@@ -300,8 +307,7 @@
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = "\"${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\"";
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n";
+			shellScript = "# Dynamically compute the base directory where SPM packages are checked out.\nSCRIPT_BASE=\"${BUILT_PRODUCTS_DIR%/Build/Products*}\"\nSCRIPT_PATH=\"${SCRIPT_BASE}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\"\n\necho \"Resolved Crashlytics run script path: ${SCRIPT_PATH}\"\n\nif [ -f \"${SCRIPT_PATH}\" ]; then\n  # Ensure the script is executable.\n  chmod +x \"${SCRIPT_PATH}\"\n  # Execute the Crashlytics run script.\n  \"${SCRIPT_PATH}\"\nelse\n  echo \"Error: Crashlytics run script not found at: ${SCRIPT_PATH}\"\n  # For debugging: list the checkout directories.\n  echo \"Listing SourcePackages directory for firebase-ios-sdk:\"\n  find \"${SCRIPT_BASE}/SourcePackages/checkouts\" -type d -name \"firebase-ios-sdk\" -print\n  exit 1\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -680,6 +686,14 @@
 				minimumVersion = 11.9.0;
 			};
 		};
+		FAA41C6B2D93304E0037154A /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -687,6 +701,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = FA0D6EAD2D7ABF6400AF0365 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseCrashlytics;
+		};
+		FAA41C6C2D9330660037154A /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FAA41C6B2D93304E0037154A /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		FAA41C6E2D9330660037154A /* GoogleSignInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FAA41C6B2D93304E0037154A /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignInSwift;
 		};
 		FAA887452D7AC5A700639E34 /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;

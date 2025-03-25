@@ -48,5 +48,16 @@
         <string>UIInterfaceOrientationLandscapeLeft</string>
         <string>UIInterfaceOrientationLandscapeRight</string>
     </array>
-</dict>
+    </dict>
+    <key>CFBundleURLTypes</key>
+    <array>
+    <dict>
+        <key>CFBundleURLSchemes</key>
+        <array>
+            <string>com.googleusercontent.apps.946865924755-nahs4k40jlmerbvtgv6skuh949ja94j1</string>
+        </array>
+        <key>CFBundleURLName</key>
+        <string>com.yourcompany.parentingassistant</string>
+    </dict>
+    </array>
 </plist> 
