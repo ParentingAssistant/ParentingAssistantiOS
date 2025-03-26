@@ -315,7 +315,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#!/bin/sh\n# Use the local copy of the Crashlytics run script located in your project.\n# If your Xcode project is in the ParentingAssistant folder, then SRCROOT is that folder.\nSCRIPT_PATH=\"${SRCROOT}/FirebaseCrashlytics/run\"\n\necho \"Resolved Crashlytics run script path: ${SCRIPT_PATH}\"\necho \"Listing contents of ${SRCROOT}/FirebaseCrashlytics:\"\nls -la \"${SRCROOT}/FirebaseCrashlytics\"\n\nif [ -f \"${SCRIPT_PATH}\" ]; then\n  # Ensure the script is executable.\n  chmod +x \"${SCRIPT_PATH}\"\n  echo \"Executing Crashlytics run script...\"\n  \"${SCRIPT_PATH}\"\nelse\n  echo \"Error: Crashlytics run script not found at: ${SCRIPT_PATH}\"\n  exit 1\nfi\n";
+			shellScript = "# Get the path to the Firebase Crashlytics script\nSCRIPT_PATH=\"${BUILD_DIR%Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\"\n\nif [ -f \"${SCRIPT_PATH}\" ]; then\n  echo \"Found Crashlytics script at: ${SCRIPT_PATH}\"\n  \"${SCRIPT_PATH}\" --build-phase\nelse\n  echo \"Error: Crashlytics script not found at: ${SCRIPT_PATH}\"\n  exit 1\nfi\n";
 			disableDefaultSettings = 1;
 			enableUserScriptSandboxing = 0;
 		};
