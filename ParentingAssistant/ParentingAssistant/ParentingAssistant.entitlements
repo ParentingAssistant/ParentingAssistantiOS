@@ -10,6 +10,10 @@
     <true/>
     <key>com.apple.security.files.downloads.read-write</key>
     <true/>
+    <key>com.apple.security.files.bookmarks.app-scope</key>
+    <true/>
+    <key>com.apple.security.files.bookmarks.document-scope</key>
+    <true/>
     <key>keychain-access-groups</key>
     <array>
         <string>$(AppIdentifierPrefix)com.yourcompany.parentingassistant</string>
